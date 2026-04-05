@@ -1,0 +1,4 @@
+export const COMPANIES = {
+  DEFAULT_PAGE_SIZE: 15,
+  DEFAULT_PAGE: 0,
+} as const;
