@@ -1,5 +1,4 @@
 import React from 'react';
-import { frontBaseUrl } from '@/services/frontBaseUrl';
 import CompanyProfile from '@/components/companies/detail/profile/CompanyProfile';
 import CompanyEmployeeCount from '@/components/companies/detail/profile/CompanyEmployeeCount';
 import StockPeerComparison from '@/components/companies/detail/profile/StockPeerComparison';
@@ -31,6 +30,10 @@ const CompanyDetailPage = async ({ params }: CompanyDetailPageProps) => {
     symbol,
   });
   const exchangeRate = await getExchangeRateService();
+  const exchangeRateWon =
+    typeof exchangeRate.data === 'number'
+      ? exchangeRate.data
+      : ((exchangeRate.data as { data?: number } | undefined)?.data ?? 0);
   const revenueProductSegmentation = await getRevenueProductSegmentation({
     symbol,
     period: 'annual',
@@ -46,7 +49,7 @@ const CompanyDetailPage = async ({ params }: CompanyDetailPageProps) => {
       {companyProfile.success ? (
         <CompanyProfile
           companyProfile={companyProfile.data[0] ?? []}
-          exchangeRate={exchangeRate.data.data}
+          exchangeRate={exchangeRateWon}
           shareFloat={shareFloat.data[0] ?? []}
         />
       ) : (
@@ -54,18 +57,26 @@ const CompanyDetailPage = async ({ params }: CompanyDetailPageProps) => {
           회사 프로필을 찾을 수 없습니다.
         </div>
       )}
-      <div>
-        <RevenueProductSegmentation
-          revenueProductSegmentation={revenueProductSegmentation.data ?? []}
+      {revenueProductSegmentation.data.length > 0 ? (
+        <div>
+          <RevenueProductSegmentation
+            revenueProductSegmentation={revenueProductSegmentation.data ?? []}
+          />
+        </div>
+      ) : null}
+      {employeeCount.data.length > 0 ? (
+        <div className="min-w-0 flex-1">
+          <CompanyEmployeeCount employeeCount={employeeCount.data ?? []} />
+        </div>
+      ) : null}
+      {executives.data.length > 0 ? (
+        <ExecutiveCompensation executives={executives.data ?? []} />
+      ) : null}
+      {stockPeerComparison.data.length > 0 ? (
+        <StockPeerComparison
+          stockPeerComparison={stockPeerComparison.data ?? []}
         />
-      </div>
-      <div className="min-w-0 flex-1">
-        <CompanyEmployeeCount employeeCount={employeeCount.data ?? []} />
-      </div>
-      <ExecutiveCompensation executives={executives.data ?? []} />
-      <StockPeerComparison
-        stockPeerComparison={stockPeerComparison.data ?? []}
-      />
+      ) : null}
     </div>
   );
 };
