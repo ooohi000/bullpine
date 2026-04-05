@@ -8,6 +8,7 @@ export function useVerificationCooldown() {
   const [cooldownTick, setCooldownTick] = useState(0);
 
   const cooldownRemainingSec = useMemo(() => {
+    void cooldownTick;
     if (cooldownEndsAt == null) return 0;
     return Math.max(0, Math.ceil((cooldownEndsAt - Date.now()) / 1000));
   }, [cooldownEndsAt, cooldownTick]);
