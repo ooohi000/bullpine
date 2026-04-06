@@ -34,7 +34,7 @@ const useStockList = ({
         country,
       }),
     staleTime: 6 * 60 * 1000,
-    refetchOnMount: false,
+    refetchOnMount: 'always',
   });
 };
 

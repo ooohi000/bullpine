@@ -1,7 +1,9 @@
 import VerticalMenu, {
   type VerticalMenuItem,
 } from '@/components/common/VerticalMenu';
+import MaintenanceNotice from '@/components/common/MaintenanceNotice';
 import { isAuthenticated } from '@/lib/server/isAuthenticated';
+import { isMaintenanceWindow } from '@/lib/server/isMaintenanceWindow';
 import { loadCompanyProfile } from '@/services/companies/profile/loadCompanyProfile';
 import { notFound } from 'next/navigation';
 
@@ -14,6 +16,10 @@ export default async function CompanyDetailLayout({
   children,
   params,
 }: CompanyDetailLayoutProps) {
+  if (isMaintenanceWindow()) {
+    return <MaintenanceNotice />;
+  }
+
   const resolvedParams = await Promise.resolve(params);
   const { symbol } = resolvedParams;
   const authed = isAuthenticated();

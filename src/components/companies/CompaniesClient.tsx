@@ -35,7 +35,7 @@ const CompaniesClient = () => {
   const setSearchHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
   };
-  const { data, isLoading, refetch } = useStockList({
+  const { data, isLoading, refetch, isFetching } = useStockList({
     search,
     page: page - 1,
     limit: LIMIT,
@@ -61,6 +61,7 @@ const CompaniesClient = () => {
     router.push(`/companies?${params.toString()}`);
     setSelectedExchange(value);
   };
+
   const handleSectorSelect = (value: SelectOption) => {
     const params = new URLSearchParams(searchParams);
     const search = params.get('search') || '';
@@ -76,6 +77,7 @@ const CompaniesClient = () => {
     router.push(`/companies?${params.toString()}`);
     setSelectedSector(value);
   };
+
   const handleIndustrySelect = (value: SelectOption) => {
     const params = new URLSearchParams(searchParams);
     const search = params.get('search') || '';
@@ -140,7 +142,7 @@ const CompaniesClient = () => {
   }, [searchParams]);
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-6xl mx-auto px-8 py-8">
       {/* Search section */}
       <div className="mb-8 flex flex-col gap-5">
         <div className="w-full max-w-2xl">
@@ -150,30 +152,29 @@ const CompaniesClient = () => {
             handleSearch={handleSearch}
           />
         </div>
-        <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="hidden w-full gap-3 md:grid md:grid-cols-3">
           <Select
             selectedValue={selectedExchange}
             onSelect={handleExchangeSelect}
             options={EXCHANGE_FALLBACK}
           />
           <Select
-            selectedValue={selectedIndustry}
-            onSelect={handleIndustrySelect}
-            options={INDUSTRY_FALLBACK}
-          />
-          <Select
             selectedValue={selectedSector}
             onSelect={handleSectorSelect}
             options={SECTOR_FALLBACK}
+          />
+          <Select
+            selectedValue={selectedIndustry}
+            onSelect={handleIndustrySelect}
+            options={INDUSTRY_FALLBACK}
           />
         </div>
       </div>
 
       {/* Table card */}
       <div className="rounded-xl border border-border bg-card overflow-hidden shadow-lg">
-        {isLoading ? (
+        {isLoading || isFetching ? (
           <div className="p-12 flex flex-col items-center justify-center gap-4">
-            <div className="w-10 h-10 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             <p className="text-muted-foreground text-sm">
               종목 목록을 불러오는 중...
             </p>
