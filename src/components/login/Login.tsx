@@ -58,7 +58,7 @@ const Login = () => {
   });
 
   return (
-    <div className="w-full">
+    <div className="flex w-full flex-col gap-4">
       <div className="w-full max-h-[calc(100vh-220px)] overflow-y-auto rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
         <div className="mb-5">
           <h3 className="text-xl font-semibold text-foreground">로그인</h3>
@@ -133,15 +133,24 @@ const Login = () => {
           </button>
         </form>
 
-        <p className="mt-4 text-center text-xs text-muted-foreground/50">
-          계정이 없으신가요?{' '}
+        <p className="mt-4 text-center text-xs text-muted-foreground/80">
+          <span className="font-semibold pr-1">계정이 없으신가요?</span>
           <Link
             href="/signup"
-            className="font-medium text-destructive/80 transition-colors hover:text-destructive hover:underline"
+            className="font-semibold text-foreground/80 transition-colors hover:text-chart-foreground hover:underline"
           >
             회원가입
           </Link>
         </p>
+      </div>
+      <div className="mb-4 flex flex-col gap-2 text-sm text-muted-foreground">
+        로그인 안해도 미국 기업 검색 및 상세 정보 볼 수 있습니다.
+        <Link
+          href="/companies"
+          className="font-semibold text-foreground/80 transition-colors hover:text-chart-foreground hover:underline"
+        >
+          기업 검색 바로 가기
+        </Link>
       </div>
     </div>
   );

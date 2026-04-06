@@ -36,19 +36,19 @@ const CompaniesTable = ({ content }: CompaniesTableProps) => {
     <TableComponent.table>
       <TableComponent.tableHeader className="!text-xs md:!text-sm">
         <TableComponent.tableRow className="border-b border-border">
-          <TableComponent.tableHead className="hidden w-[30%] md:table-cell">
+          <TableComponent.tableHead className="w-[30%] md:table-cell">
             회사명
           </TableComponent.tableHead>
-          <TableComponent.tableHead className="w-[10%] whitespace-nowrap">
+          <TableComponent.tableHead className="hidden w-[10%] whitespace-nowrap md:table-cell">
             종목코드
           </TableComponent.tableHead>
-          <TableComponent.tableHead className="min-w-0 w-[12%]">
+          <TableComponent.tableHead className="hidden min-w-0 w-[16%] md:w-[12%] md:table-cell">
             업종
           </TableComponent.tableHead>
           <TableComponent.tableHead className="hidden w-[16%] md:table-cell">
             산업
           </TableComponent.tableHead>
-          <TableComponent.tableHead className="w-[10%] whitespace-nowrap md:w-[10%]">
+          <TableComponent.tableHead className="hidden w-[10%] whitespace-nowrap md:w-[10%] md:table-cell">
             거래소
           </TableComponent.tableHead>
           <TableComponent.tableHead className="hidden w-[14%] md:table-cell">
@@ -67,18 +67,21 @@ const CompaniesTable = ({ content }: CompaniesTableProps) => {
             onClick={() => handleCompanyClick(company)}
           >
             <TableComponent.tableCell
-              className="max-w-0 hidden md:table-cell text-left font-medium text-foreground py-3.5"
+              className="max-w-0 text-left font-medium text-foreground"
               title={company.companyName}
             >
-              <span className="block md:whitespace-normal">
+              <span className="hidden block md:whitespace-normal md:table-cell">
                 {company.companyName}
               </span>
+              <span className="block md:whitespace-normal md:hidden">
+                {`${company.companyName} (${company.symbol})`}
+              </span>
             </TableComponent.tableCell>
-            <TableComponent.tableCell className="px-2.5 py-2.5 font-semibold tabular-nums text-foreground md:px-4 md:py-3.5 md:font-normal">
+            <TableComponent.tableCell className="hidden font-semibold tabular-nums text-foreground md:font-normal md:table-cell">
               {company.symbol}
             </TableComponent.tableCell>
             <TableComponent.tableCell
-              className="min-w-0 px-2.5 py-2.5 md:px-4 md:py-3.5"
+              className="min-w-0 hidden whitespace-nowrap break-all md:table-cell"
               title={sectorLabel(company.sector)}
             >
               <span className="block truncate md:whitespace-normal">
@@ -86,17 +89,17 @@ const CompaniesTable = ({ content }: CompaniesTableProps) => {
               </span>
             </TableComponent.tableCell>
             <TableComponent.tableCell
-              className="hidden min-w-0 md:table-cell"
+              className="min-w-0 hidden whitespace-nowrap break-all md:table-cell"
               title={industryLabel(company.industry)}
             >
               <span className="block md:whitespace-normal">
                 {industryLabel(company.industry)}
               </span>
             </TableComponent.tableCell>
-            <TableComponent.tableCell className="px-2.5 py-2.5 whitespace-nowrap md:px-4 md:py-3.5">
+            <TableComponent.tableCell className="hidden whitespace-nowrap md:table-cell">
               {company.exchangeShortName}
             </TableComponent.tableCell>
-            <TableComponent.tableCell className="hidden md:table-cell">
+            <TableComponent.tableCell className="hidden break-keep md:table-cell">
               {formatNumber(company.marketCap)} 달러
             </TableComponent.tableCell>
             <TableComponent.tableCell className="hidden md:table-cell">

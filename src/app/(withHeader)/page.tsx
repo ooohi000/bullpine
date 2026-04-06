@@ -148,7 +148,7 @@ const Home = () => {
 
         <div className="mx-auto flex h-full w-full max-w-6xl flex-col justify-center gap-8 p-4 md:gap-0 md:p-6 lg:p-8">
           <div
-            className={`flex h-full max-h-[750px] min-h-0 flex-col md:flex-row md:items-stretch md:gap-0 ${
+            className={`flex h-full max-h-[950px] min-h-0 flex-col md:max-h-[750px] md:flex-row md:items-stretch md:gap-0 ${
               isMdUp
                 ? 'rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.01] p-6 shadow-sm backdrop-blur-[2px] md:rounded-3xl md:p-8 lg:p-10'
                 : 'rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-white/[0.01] p-5 shadow-sm backdrop-blur-[2px] sm:p-6'
