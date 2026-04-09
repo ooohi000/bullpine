@@ -1,4 +1,5 @@
 import EarningsView from '@/components/companies/detail/earnings/EarningsView';
+import { getExchangeRateService } from '@/services/exchangeRate/getExchangeRateService';
 import React from 'react';
 
 const EarningsPage = async ({
@@ -8,6 +9,7 @@ const EarningsPage = async ({
 }) => {
   const resolvedParams = await Promise.resolve(params);
   const { symbol } = resolvedParams;
+  const exchangeRate = await getExchangeRateService();
 
   return (
     <div className="flex flex-col gap-10 pt-4">
@@ -16,7 +18,10 @@ const EarningsPage = async ({
           {symbol.toUpperCase()} 실적
         </h1>
       </header>
-      <EarningsView symbol={symbol} />
+      <EarningsView
+        symbol={symbol}
+        exchangeRate={exchangeRate.data.price ?? null}
+      />
     </div>
   );
 };

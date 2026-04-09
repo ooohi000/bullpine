@@ -7,9 +7,10 @@ import type { EarningsItem } from '@/types';
 
 interface EarningsTableProps {
   sortedData: EarningsItem[];
+  exchangeRate: number | null;
 }
 
-const EarningsTable = ({ sortedData }: EarningsTableProps) => {
+const EarningsTable = ({ sortedData, exchangeRate }: EarningsTableProps) => {
   if (sortedData.length === 0) {
     return (
       <div className="rounded-xl border border-border bg-card p-10 text-center text-muted-foreground">
@@ -56,12 +57,16 @@ const EarningsTable = ({ sortedData }: EarningsTableProps) => {
                 </StatementTable.Cell>
                 <StatementTable.Cell variant="year">
                   {item.revenueActual != null
-                    ? formatNumber(item.revenueActual)
+                    ? exchangeRate
+                      ? `${formatNumber(Math.round(Number(item.revenueActual) * exchangeRate))} 원`
+                      : `${formatNumber(item.revenueActual)} 달러`
                     : '—'}
                 </StatementTable.Cell>
                 <StatementTable.Cell variant="year">
                   {item.revenueEstimated != null
-                    ? formatNumber(item.revenueEstimated)
+                    ? exchangeRate
+                      ? `${formatNumber(Math.round(Number(item.revenueEstimated) * exchangeRate))} 원`
+                      : `${formatNumber(item.revenueEstimated)} 달러`
                     : '—'}
                 </StatementTable.Cell>
               </StatementTable.Row>

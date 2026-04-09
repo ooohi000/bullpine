@@ -11,7 +11,7 @@ const CompanyProfile = ({
   shareFloat,
 }: {
   companyProfile: CompanyProfileType;
-  exchangeRate: number;
+  exchangeRate: number | null;
   shareFloat: SharesFloatType;
 }) => {
   const infoRows = [
@@ -36,7 +36,9 @@ const CompanyProfile = ({
     },
     {
       label: '시가총액',
-      value: `${formatNumber(companyProfile.marketCap)} 달러`,
+      value: exchangeRate
+        ? `${formatNumber(companyProfile.marketCap * exchangeRate)} 원`
+        : `${formatNumber(companyProfile.marketCap)} 달러`,
     },
   ];
 
@@ -84,11 +86,11 @@ const CompanyProfile = ({
               </React.Fragment>
             ))}
           </div>
-          <p className="mt-3 border-t border-border pt-3 text-xs text-muted-foreground">
-            환율 {exchangeRate.toFixed(2)} 원 / 시가총액{' '}
-            {formatNumber(Math.round(companyProfile.marketCap * exchangeRate))}{' '}
-            원
-          </p>
+          {exchangeRate ? (
+            <p className="mt-3 border-t border-border pt-3 text-xs text-muted-foreground">
+              환율: {exchangeRate} 원
+            </p>
+          ) : null}
         </div>
 
         <div

@@ -3,8 +3,9 @@
 import React, { useMemo, useState } from 'react';
 import HighchartsChart from '@/components/common/HighchartsChart';
 import { chartSeriesColor } from '@/constants/chartSeriesColors';
-import type { BalanceSheetItem } from '@/types';
+import type { BalanceSheetItem, PeriodType } from '@/types';
 import type { Options } from 'highcharts';
+import { formatNumber } from '@/lib';
 
 /** group: 자산·부채·자본 구분. 시리즈 색은 `chartSeriesColor(0…)` 공통 팔레트 순서. */
 const SERIES: {
@@ -63,31 +64,27 @@ const DEFAULT_VISIBLE_KEYS: (keyof BalanceSheetItem)[] = [
   'totalLiabilities',
 ];
 
-function isQuarterPeriod(period: string | undefined): boolean {
-  return /Q/i.test(period ?? '');
-}
-
-/** Q1 → 1분기 (축·툴팁 공통) */
-function quarterKoreanLabel(period: string): string {
-  return period.split('').reverse().join('').replace(/Q/gi, '분기');
-}
-
 /** 툴팁 상단: FY·연간은 년도만, 분기는 년도 + 분기 한 줄 */
-function formatTooltipPeriodTitle(item: BalanceSheetItem): string {
-  const year = item.fiscalYear;
-  const p = (item.period ?? '').trim();
-  if (isQuarterPeriod(p)) {
-    return `${year}년 ${quarterKoreanLabel(p)}`;
-  }
-  return `${year}년`;
+function formatTooltipPeriodTitle(
+  item: BalanceSheetItem,
+  period: PeriodType,
+): string {
+  const [year, month] = item.date.split('-');
+  return period === 'FY'
+    ? `${year}년`
+    : `${year}년 ${month.padStart(2, '0')}월`;
 }
 
 interface BalanceSheetSummaryChartProps {
   sortedData: BalanceSheetItem[];
+  exchangeRate: number | null;
+  period: PeriodType;
 }
 
 const BalanceSheetSummaryChart = ({
   sortedData,
+  exchangeRate,
+  period,
 }: BalanceSheetSummaryChartProps) => {
   const [visibleKeys, setVisibleKeys] = useState<Set<keyof BalanceSheetItem>>(
     () => new Set(DEFAULT_VISIBLE_KEYS),
@@ -105,14 +102,12 @@ const BalanceSheetSummaryChart = ({
   const categories = useMemo(
     () =>
       sortedData.map((item) => {
-        const year = item.fiscalYear;
-        return item.period?.includes('Q')
-          ? item.period === 'Q1'
-            ? `${year}년<br/>${item.period.split('').reverse().join('').replace('Q', '분기')}`
-            : item.period.split('').reverse().join('').replace('Q', '분기')
-          : `${year}년`;
+        const [year, month] = item.date.split('-');
+        return period === 'FY'
+          ? `${year}`
+          : `${year.slice(2)}.${month.padStart(2, '0')}`;
       }),
-    [sortedData],
+    [sortedData, period],
   );
 
   const options: Options = useMemo(
@@ -210,7 +205,7 @@ const BalanceSheetSummaryChart = ({
           const idx = Number(this.x);
           const item = sortedData[idx];
           const dateLabel = item
-            ? formatTooltipPeriodTitle(item)
+            ? formatTooltipPeriodTitle(item, period)
             : (categories[idx] ?? '').replace(/<br\s*\/?>/gi, ' ');
           const rows = points
             .map((p, i) => {
@@ -220,7 +215,7 @@ const BalanceSheetSummaryChart = ({
                   : '';
               return `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:14px;row-gap:2px;align-items:start;padding:8px 0;${sep}">
               <span style="color:hsl(215,14%,72%);font-size:11px;line-height:1.4;word-break:keep-all;overflow-wrap:break-word;">${p.series.name}</span>
-              <span style="color:${p.color};font-weight:700;font-size:12px;line-height:1.35;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;">${Number(p.y).toLocaleString()}</span>
+              <span style="color:${p.color};font-weight:700;font-size:12px;line-height:1.35;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;">${exchangeRate ? `${formatNumber(Math.round(Number(p.y) * exchangeRate))} 원` : `${formatNumber(Number(p.y))} 달러`}</span>
             </div>`;
             })
             .join('');
@@ -266,7 +261,7 @@ const BalanceSheetSummaryChart = ({
         ],
       },
     }),
-    [sortedData, categories, visibleKeys],
+    [sortedData, categories, visibleKeys, exchangeRate, period],
   );
 
   if (sortedData.length === 0) return null;

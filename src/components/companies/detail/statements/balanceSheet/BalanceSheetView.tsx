@@ -9,9 +9,10 @@ import BalanceSheetSummaryChart from './BalanceSheetSummaryChart';
 
 interface BalanceSheetViewProps {
   symbol: string;
+  exchangeRate: number | null;
 }
 
-const BalanceSheetView = ({ symbol }: BalanceSheetViewProps) => {
+const BalanceSheetView = ({ symbol, exchangeRate }: BalanceSheetViewProps) => {
   const [period, setPeriod] = useState<PeriodType>('FY');
 
   const { data, isLoading } = useBalanceSheet({
@@ -22,7 +23,7 @@ const BalanceSheetView = ({ symbol }: BalanceSheetViewProps) => {
 
   const sheetData = (data?.data ?? []) as BalanceSheetItem[];
   const sortedData = sheetData
-    .filter((item) => parseInt(item.fiscalYear, 10) > 2020)
+    .filter((item) => parseInt(item.date.split('-')[0]) > 2020)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return (
@@ -35,9 +36,17 @@ const BalanceSheetView = ({ symbol }: BalanceSheetViewProps) => {
       ) : (
         <>
           {sheetData.length > 0 && (
-            <BalanceSheetSummaryChart sortedData={sortedData} />
+            <BalanceSheetSummaryChart
+              sortedData={sortedData}
+              exchangeRate={exchangeRate}
+              period={period}
+            />
           )}
-          <BalanceSheetTable sortedData={sortedData} />
+          <BalanceSheetTable
+            sortedData={sortedData}
+            exchangeRate={exchangeRate}
+            period={period}
+          />
         </>
       )}
     </div>

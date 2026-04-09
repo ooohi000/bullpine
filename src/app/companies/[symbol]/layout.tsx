@@ -33,9 +33,11 @@ export default async function CompanyDetailLayout({
     notFound();
   }
 
-
   const items: VerticalMenuItem[] = [
     { label: 'line', href: '' },
+    // { label: 'section', href: '', sectionTitle: '차트·가격' },
+    // { label: '차트분석', href: `/companies/${symbol}/chartsAnalysis` },
+    // { label: 'line', href: '' },
     { label: 'section', href: '', sectionTitle: '재무제표' },
     { label: '대차대조표', href: `/companies/${symbol}/balanceSheet` },
     { label: '손익계산서', href: `/companies/${symbol}/income` },
@@ -49,6 +51,11 @@ export default async function CompanyDetailLayout({
     {
       label: '핵심 지표',
       href: `/companies/${symbol}/keyMetrics`,
+      requiresAuth: true,
+    },
+    {
+      label: '주주잉여현금흐름',
+      href: `/companies/${symbol}/ownerEarnings`,
       requiresAuth: true,
     },
     { label: 'section', href: '', sectionTitle: '실적·배당' },
@@ -104,11 +111,7 @@ export default async function CompanyDetailLayout({
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <VerticalMenu
-        symbol={symbol}
-        items={items}
-        isAuthenticated={authed}
-      />
+      <VerticalMenu symbol={symbol} items={items} isAuthenticated={authed} />
       {/* 데스크톱: 고정 메뉴(180px)만큼 왼쪽 여백 */}
       <main className="flex-1 min-w-0 h-auto pt-4 pb-12 px-3 md:px-8 md:pr-8 md:ml-[180px]">
         {children}

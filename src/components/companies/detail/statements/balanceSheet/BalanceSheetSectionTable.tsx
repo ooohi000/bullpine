@@ -6,7 +6,7 @@ import {
 } from '@/constants/statements/balanceSheet';
 import { StatementTable } from '@/components/common/StatementTable';
 import { formatNumber } from '@/lib/utils/format';
-import type { BalanceSheetItem } from '@/types';
+import type { BalanceSheetItem, PeriodType } from '@/types';
 
 const sectionLabels: Record<string, string> = {
   currentAssets: '유동자산',
@@ -19,13 +19,17 @@ const sectionLabels: Record<string, string> = {
 const BalanceSheetSectionTable = ({
   title,
   sectionKeys,
-  years,
+  dates,
   dataByYear,
+  period,
+  exchangeRate,
 }: {
   title: string;
   sectionKeys: (keyof typeof BALANCE_SHEET_DISPLAY_FIELDS)[];
-  years: { year: string; date: string; period: string }[];
+  dates: { year: string; month: string }[];
   dataByYear: Map<string, BalanceSheetItem>;
+  period: PeriodType;
+  exchangeRate: number | null;
 }) => {
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
@@ -39,14 +43,15 @@ const BalanceSheetSectionTable = ({
               <StatementTable.Head variant="sticky-label">
                 항목
               </StatementTable.Head>
-              {years.map((year) => (
+              {dates.map((date) => (
                 <StatementTable.Head
-                  key={`${title}-${year.year}-${year.date}`}
+                  key={`${title}-${date.year}-${date.month}-head`}
                   variant="year"
+                  className="!min-w-[200px] !w-[200px] py-4"
                 >
-                  {year.period.includes('Q')
-                    ? `${year.year}년 ${year.period.split('').reverse().join('').replace('Q', '분기')}`
-                    : `${year.year}년`}
+                  {period === 'FY'
+                    ? `${date.year}년`
+                    : `${date.year}년 ${date.month}월`}
                 </StatementTable.Head>
               ))}
             </StatementTable.Row>
@@ -60,14 +65,18 @@ const BalanceSheetSectionTable = ({
               return (
                 <React.Fragment key={sectionKey}>
                   <StatementTable.Row isSectionLabel>
-                    <StatementTable.Cell variant="section-label">
+                    <StatementTable.Cell
+                      variant="section-label"
+                      className="bg-muted-foreground/5"
+                    >
                       {sectionLabel}
                     </StatementTable.Cell>
-                    {years.map((year) => (
+                    {dates.map((date) => (
                       <StatementTable.Cell
-                        key={`${title}-${year.year}-${year.date}`}
+                        key={`${title}-${date.year}-${date.month}-cell`}
                         variant="empty"
                         aria-hidden
+                        className="!min-w-[200px] !w-[200px] bg-muted-foreground/5"
                       />
                     ))}
                   </StatementTable.Row>
@@ -78,22 +87,29 @@ const BalanceSheetSectionTable = ({
                         <StatementTable.Cell
                           variant="sticky-label"
                           isTotal={isTotal}
-                          className="!bg-muted"
+                          className="!min-w-[160px] !w-[160px] !bg-muted !text-foreground/90"
                         >
                           {BALANCE_SHEET_KEY_MAP[field]}
                         </StatementTable.Cell>
-                        {years.map((year) => {
-                          const row = dataByYear.get(year.date);
+                        {dates.map((date) => {
+                          const row = dataByYear.get(
+                            `${date.year}-${date.month}`,
+                          );
                           const value = row?.[field];
                           const isNumber = typeof value === 'number';
                           return (
                             <StatementTable.Cell
-                              key={`${title}-${year.year}-${year.date}-${year.period}`}
+                              key={`${title}-${date.year}-${date.month}-${field}`}
                               variant="year"
                               isTotal={isTotal}
+                              className="!min-w-[200px] !w-[200px] py-4"
                             >
                               {isNumber
-                                ? formatNumber(value as number)
+                                ? exchangeRate
+                                  ? `${formatNumber(
+                                      Math.round(Number(value) * exchangeRate),
+                                    )} 원`
+                                  : `${formatNumber(value as number)} 달러`
                                 : (value ?? '-')}
                             </StatementTable.Cell>
                           );

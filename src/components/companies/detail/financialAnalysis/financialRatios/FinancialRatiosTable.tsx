@@ -4,23 +4,25 @@ import React from 'react';
 import { StatementTable } from '@/components/common/StatementTable';
 import { FINANCIAL_RATIOS_CONFIG } from '@/constants/financialAnalysis';
 import { formatFinancialRatioValue } from '@/lib/companies/ratios';
-import type { FinancialRatiosItem } from '@/types';
+import type { FinancialRatiosItem, PeriodType } from '@/types';
 import MetricInfo from '../MetricInfo';
 
 interface FinancialRatiosTableProps {
   sortedData: FinancialRatiosItem[];
+  period: PeriodType;
 }
 
-const periodLabel = (item: FinancialRatiosItem) => {
-  const year = item.fiscalYear;
-  if (item.period.includes('Q')) {
-    const q = item.period.split('').reverse().join('').replace('Q', '분기');
-    return `${year}년 ${q}`;
-  }
-  return `${year}년`;
+const periodLabel = (item: FinancialRatiosItem, period: PeriodType) => {
+  const [year, month] = item.date.split('-');
+  return period === 'FY'
+    ? `${year}년`
+    : `${year}년 ${month.padStart(2, '0')}월`;
 };
 
-const FinancialRatiosTable = ({ sortedData }: FinancialRatiosTableProps) => {
+const FinancialRatiosTable = ({
+  sortedData,
+  period,
+}: FinancialRatiosTableProps) => {
   if (sortedData.length === 0) {
     return (
       <div className="rounded-xl border border-border bg-card p-10 text-center text-muted-foreground">
@@ -45,9 +47,9 @@ const FinancialRatiosTable = ({ sortedData }: FinancialRatiosTableProps) => {
                 <StatementTable.Head
                   key={item.date}
                   variant="year"
-                  className="min-w-[140px] text-muted-foreground"
+                  className="!min-w-[200px] !w-[200px] py-4"
                 >
-                  {periodLabel(item)}
+                  {periodLabel(item, period)}
                 </StatementTable.Head>
               ))}
             </StatementTable.Row>
@@ -61,7 +63,7 @@ const FinancialRatiosTable = ({ sortedData }: FinancialRatiosTableProps) => {
                     className="!min-w-[160px] !w-[160px] !bg-muted font-medium text-foreground"
                   >
                     <div className="flex items-center justify-between gap-1">
-                      <span className="flex items-center justify-between gap-1">
+                      <span className="flex items-center justify-between gap-1 !text-foreground/90">
                         {label}
                       </span>
                       <MetricInfo description={description} formula={formula} />
@@ -74,7 +76,7 @@ const FinancialRatiosTable = ({ sortedData }: FinancialRatiosTableProps) => {
                       <StatementTable.Cell
                         key={`${item.date}-${key}`}
                         variant="year"
-                        className="!min-w-[140px] text-muted-foreground"
+                        className="!min-w-[200px] !w-[200px] py-4"
                       >
                         {formatFinancialRatioValue(key, num)}
                       </StatementTable.Cell>

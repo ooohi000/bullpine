@@ -13,19 +13,36 @@ import {
   getFinancialRatiosCategories,
   toPercentDisplay,
 } from './chartUtils';
+import { PeriodType } from '@/types';
 
-const SERIES: { key: keyof FinancialRatiosItem; name: string; color: string }[] = [
-  { key: 'grossProfitMargin', name: '매출총이익률', color: chartSeriesColor(0) },
-  { key: 'operatingProfitMargin', name: '영업이익률', color: chartSeriesColor(1) },
+const SERIES: {
+  key: keyof FinancialRatiosItem;
+  name: string;
+  color: string;
+}[] = [
+  {
+    key: 'grossProfitMargin',
+    name: '매출총이익률',
+    color: chartSeriesColor(0),
+  },
+  {
+    key: 'operatingProfitMargin',
+    name: '영업이익률',
+    color: chartSeriesColor(1),
+  },
   { key: 'netProfitMargin', name: '순이익률', color: chartSeriesColor(2) },
   { key: 'ebitdaMargin', name: 'EBITDA 마진', color: chartSeriesColor(3) },
 ];
 
 interface Props {
   sortedData: FinancialRatiosItem[];
+  period: PeriodType;
 }
 
-export default function FinancialRatiosProfitabilityChart({ sortedData }: Props) {
+export default function FinancialRatiosProfitabilityChart({
+  sortedData,
+  period,
+}: Props) {
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(
     () => new Set(SERIES.map((s) => s.key)),
   );
@@ -39,8 +56,8 @@ export default function FinancialRatiosProfitabilityChart({ sortedData }: Props)
   };
 
   const categories = useMemo(
-    () => getFinancialRatiosCategories(sortedData),
-    [sortedData],
+    () => getFinancialRatiosCategories(sortedData, period),
+    [sortedData, period],
   );
 
   const options: Options = useMemo(

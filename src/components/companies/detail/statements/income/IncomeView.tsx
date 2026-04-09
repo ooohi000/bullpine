@@ -9,9 +9,10 @@ import IncomeTable from './IncomeTable';
 
 interface IncomeViewProps {
   symbol: string;
+  exchangeRate: number | null;
 }
 
-const IncomeView = ({ symbol }: IncomeViewProps) => {
+const IncomeView = ({ symbol, exchangeRate }: IncomeViewProps) => {
   const [period, setPeriod] = useState<PeriodType>('FY');
 
   const { data, isLoading } = useIncome({
@@ -22,7 +23,7 @@ const IncomeView = ({ symbol }: IncomeViewProps) => {
 
   const incomeData = (data?.data ?? []) as IncomeItem[];
   const sortedData = incomeData
-    .filter((item) => parseInt(item.fiscalYear, 10) > 2020)
+    .filter((item) => parseInt(item.date.split('-')[0]) > 2020)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return (
@@ -34,8 +35,16 @@ const IncomeView = ({ symbol }: IncomeViewProps) => {
         </div>
       ) : (
         <>
-          <IncomeSummaryChart sortedData={sortedData} />
-          <IncomeTable sortedData={sortedData} />
+          <IncomeSummaryChart
+            sortedData={sortedData}
+            exchangeRate={exchangeRate}
+            period={period}
+          />
+          <IncomeTable
+            sortedData={sortedData}
+            exchangeRate={exchangeRate}
+            period={period}
+          />
         </>
       )}
     </div>

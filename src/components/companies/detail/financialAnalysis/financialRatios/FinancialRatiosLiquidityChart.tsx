@@ -12,8 +12,13 @@ import {
   financialRatiosTooltipPositioner,
   getFinancialRatiosCategories,
 } from './chartUtils';
+import { PeriodType } from '@/types';
 
-const SERIES: { key: keyof FinancialRatiosItem; name: string; color: string }[] = [
+const SERIES: {
+  key: keyof FinancialRatiosItem;
+  name: string;
+  color: string;
+}[] = [
   { key: 'currentRatio', name: '유동비율', color: chartSeriesColor(0) },
   { key: 'quickRatio', name: '당좌비율', color: chartSeriesColor(1) },
   { key: 'cashRatio', name: '현금비율', color: chartSeriesColor(2) },
@@ -21,9 +26,13 @@ const SERIES: { key: keyof FinancialRatiosItem; name: string; color: string }[] 
 
 interface Props {
   sortedData: FinancialRatiosItem[];
+  period: PeriodType;
 }
 
-export default function FinancialRatiosLiquidityChart({ sortedData }: Props) {
+export default function FinancialRatiosLiquidityChart({
+  sortedData,
+  period,
+}: Props) {
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(
     () => new Set(SERIES.map((s) => s.key)),
   );
@@ -37,8 +46,8 @@ export default function FinancialRatiosLiquidityChart({ sortedData }: Props) {
   };
 
   const categories = useMemo(
-    () => getFinancialRatiosCategories(sortedData),
-    [sortedData],
+    () => getFinancialRatiosCategories(sortedData, period),
+    [sortedData, period],
   );
 
   const options: Options = useMemo(
@@ -88,9 +97,7 @@ export default function FinancialRatiosLiquidityChart({ sortedData }: Props) {
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
       <div className="border-b border-border bg-muted/60 px-5 py-3">
-        <h3 className="text-base font-semibold text-foreground">
-          유동성 추이
-        </h3>
+        <h3 className="text-base font-semibold text-foreground">유동성 추이</h3>
       </div>
       <div className="p-4 md:p-5">
         <div className="flex flex-wrap gap-1.5 mb-4">

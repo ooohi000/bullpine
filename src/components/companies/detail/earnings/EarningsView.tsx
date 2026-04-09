@@ -8,9 +8,10 @@ import { EarningsItem } from '@/types';
 
 interface EarningsViewProps {
   symbol: string;
+  exchangeRate: number | null;
 }
 
-const EarningsView = ({ symbol }: EarningsViewProps) => {
+const EarningsView = ({ symbol, exchangeRate }: EarningsViewProps) => {
   const { data, isLoading } = useEarnings({ symbol });
   const earningsData = (data?.data ?? []) as EarningsItem[];
   const sortedData = earningsData
@@ -25,11 +26,15 @@ const EarningsView = ({ symbol }: EarningsViewProps) => {
         </div>
       ) : (
         <>
-          <EarningsSummaryChart sortedData={sortedData} />
+          <EarningsSummaryChart
+            sortedData={sortedData}
+            exchangeRate={exchangeRate}
+          />
           <EarningsTable
             sortedData={[...sortedData].sort(
               (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
             )}
+            exchangeRate={exchangeRate}
           />
         </>
       )}

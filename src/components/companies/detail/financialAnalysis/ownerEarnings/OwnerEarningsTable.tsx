@@ -4,6 +4,7 @@ import React from 'react';
 import { StatementTable } from '@/components/common/StatementTable';
 import { formatNumber } from '@/lib/utils/format';
 import { OwnerEarningsItem } from '@/types/financialAnalysis';
+import { PeriodType } from '@/types';
 
 const ROWS: {
   key: keyof OwnerEarningsItem;
@@ -19,19 +20,19 @@ const ROWS: {
 ];
 
 function periodLabel(item: OwnerEarningsItem): string {
-  const year = Number(item.date.split('-')[0]);
-  if (item.period?.includes('Q')) {
-    const q = item.period.split('').reverse().join('').replace('Q', '분기');
-    return `${year}년 ${q}`;
-  }
-  return `${year}년`;
+  const [year, month] = item.date.split('-');
+  return `${year}년 ${month.padStart(2, '0')}월`;
 }
 
 interface OwnerEarningsTableProps {
   sortedData: OwnerEarningsItem[];
+  exchangeRate: number | null;
 }
 
-const OwnerEarningsTable = ({ sortedData }: OwnerEarningsTableProps) => {
+const OwnerEarningsTable = ({
+  sortedData,
+  exchangeRate,
+}: OwnerEarningsTableProps) => {
   if (sortedData.length === 0) {
     return (
       <div className="rounded-xl border border-border bg-card p-10 text-center text-muted-foreground">
@@ -54,6 +55,7 @@ const OwnerEarningsTable = ({ sortedData }: OwnerEarningsTableProps) => {
                   <StatementTable.Head
                     key={`${item.date}-${item.period}`}
                     variant="year"
+                    className="!min-w-[200px] !w-[200px] py-4"
                   >
                     {periodLabel(item)}
                   </StatementTable.Head>
@@ -65,7 +67,7 @@ const OwnerEarningsTable = ({ sortedData }: OwnerEarningsTableProps) => {
                 <StatementTable.Row key={key}>
                   <StatementTable.Cell
                     variant="sticky-label"
-                    className="!bg-muted"
+                    className="!min-w-[160px] !w-[160px] !bg-muted !text-foreground/90"
                   >
                     {label}
                   </StatementTable.Cell>
@@ -75,9 +77,14 @@ const OwnerEarningsTable = ({ sortedData }: OwnerEarningsTableProps) => {
                       <StatementTable.Cell
                         key={`${item.date}-${item.period}-${key}`}
                         variant="year"
+                        className="!min-w-[200px] !w-[200px] py-4"
                       >
-                        {isNumber && typeof value === 'number'
-                          ? formatNumber(value)
+                        {isNumber
+                          ? label === '주주잉여현금흐름'
+                            ? exchangeRate
+                              ? `${formatNumber(Math.round(Number(value) * exchangeRate))} 원`
+                              : `${formatNumber(value as number)} 달러`
+                            : formatNumber(value as number)
                           : value != null
                             ? String(value)
                             : '-'}

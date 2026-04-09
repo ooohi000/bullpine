@@ -1,5 +1,6 @@
 import React from 'react';
 import CashFlowView from '@/components/companies/detail/statements/cashFlow/CashFlowView';
+import { getExchangeRateService } from '@/services/exchangeRate/getExchangeRateService';
 
 interface CompanyCashFlowPageProps {
   params: Promise<{ symbol: string }> | { symbol: string };
@@ -8,6 +9,7 @@ interface CompanyCashFlowPageProps {
 const CompanyCashFlowPage = async ({ params }: CompanyCashFlowPageProps) => {
   const resolvedParams = await Promise.resolve(params);
   const { symbol } = resolvedParams;
+  const exchangeRate = await getExchangeRateService();
 
   return (
     <div className="flex flex-col gap-10 pt-4">
@@ -16,7 +18,10 @@ const CompanyCashFlowPage = async ({ params }: CompanyCashFlowPageProps) => {
           {symbol.toUpperCase()} 현금흐름표
         </h1>
       </header>
-      <CashFlowView symbol={symbol} />
+      <CashFlowView
+        symbol={symbol}
+        exchangeRate={exchangeRate.data.price ?? null}
+      />
     </div>
   );
 };

@@ -12,8 +12,13 @@ import {
   financialRatiosTooltipPositioner,
   getFinancialRatiosCategories,
 } from './chartUtils';
+import { PeriodType } from '@/types';
 
-const SERIES: { key: keyof FinancialRatiosItem; name: string; color: string }[] = [
+const SERIES: {
+  key: keyof FinancialRatiosItem;
+  name: string;
+  color: string;
+}[] = [
   { key: 'netIncomePerShare', name: 'EPS', color: chartSeriesColor(0) },
   { key: 'bookValuePerShare', name: 'BPS', color: chartSeriesColor(1) },
   { key: 'freeCashFlowPerShare', name: '주당 FCF', color: chartSeriesColor(2) },
@@ -21,9 +26,13 @@ const SERIES: { key: keyof FinancialRatiosItem; name: string; color: string }[] 
 
 interface Props {
   sortedData: FinancialRatiosItem[];
+  period: PeriodType;
 }
 
-export default function FinancialRatiosPerShareChart({ sortedData }: Props) {
+export default function FinancialRatiosPerShareChart({
+  sortedData,
+  period,
+}: Props) {
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(
     () => new Set(SERIES.map((s) => s.key)),
   );
@@ -37,8 +46,8 @@ export default function FinancialRatiosPerShareChart({ sortedData }: Props) {
   };
 
   const categories = useMemo(
-    () => getFinancialRatiosCategories(sortedData),
-    [sortedData],
+    () => getFinancialRatiosCategories(sortedData, period),
+    [sortedData, period],
   );
 
   const options: Options = useMemo(

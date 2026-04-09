@@ -30,10 +30,6 @@ const CompanyDetailPage = async ({ params }: CompanyDetailPageProps) => {
     symbol,
   });
   const exchangeRate = await getExchangeRateService();
-  const exchangeRateWon =
-    typeof exchangeRate.data === 'number'
-      ? exchangeRate.data
-      : ((exchangeRate.data as { data?: number } | undefined)?.data ?? 0);
   const revenueProductSegmentation = await getRevenueProductSegmentation({
     symbol,
     period: 'annual',
@@ -49,7 +45,7 @@ const CompanyDetailPage = async ({ params }: CompanyDetailPageProps) => {
       {companyProfile.success ? (
         <CompanyProfile
           companyProfile={companyProfile.data[0] ?? []}
-          exchangeRate={exchangeRateWon}
+          exchangeRate={exchangeRate.data.price ?? null}
           shareFloat={shareFloat.data[0] ?? []}
         />
       ) : (
@@ -61,6 +57,7 @@ const CompanyDetailPage = async ({ params }: CompanyDetailPageProps) => {
         <div>
           <RevenueProductSegmentation
             revenueProductSegmentation={revenueProductSegmentation.data ?? []}
+            exchangeRate={exchangeRate.data.price ?? null}
           />
         </div>
       ) : null}
@@ -70,7 +67,10 @@ const CompanyDetailPage = async ({ params }: CompanyDetailPageProps) => {
         </div>
       ) : null}
       {executives.data.length > 0 ? (
-        <ExecutiveCompensation executives={executives.data ?? []} />
+        <ExecutiveCompensation
+          executives={executives.data ?? []}
+          exchangeRate={exchangeRate.data.price ?? null}
+        />
       ) : null}
       {stockPeerComparison.data.length > 0 ? (
         <StockPeerComparison

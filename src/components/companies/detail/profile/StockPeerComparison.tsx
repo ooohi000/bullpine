@@ -11,7 +11,7 @@ const StockPeerComparison = ({
   return (
     <div className="flex flex-col flex-1 min-h-[250px] gap-2">
       <h2 className="text-lg font-bold text-foreground">비교 기업</h2>
-      <div className="grid grid-cols-5 gap-3 text-sm text-muted-foreground">
+      <div className="grid grid-cols-3 gap-3 text-sm text-muted-foreground md:grid-cols-5">
         {stockPeerComparison.map((item) => (
           <Link
             key={item.symbol}

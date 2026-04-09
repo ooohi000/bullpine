@@ -5,6 +5,7 @@ import HighchartsChart from '@/components/common/HighchartsChart';
 import { chartSeriesColor } from '@/constants/chartSeriesColors';
 import type { DividendsItem } from '@/types';
 import type { Options } from 'highcharts';
+import { formatNumber } from '@/lib/utils/format';
 
 type DividendsSeriesKey = keyof Pick<DividendsItem, 'dividend' | 'yield'>;
 
@@ -45,9 +46,13 @@ function dividendsTooltipPositioner(
 
 interface DividendsSummaryChartProps {
   sortedData: DividendsItem[];
+  exchangeRate: number | null;
 }
 
-const DividendsSummaryChart = ({ sortedData }: DividendsSummaryChartProps) => {
+const DividendsSummaryChart = ({
+  sortedData,
+  exchangeRate,
+}: DividendsSummaryChartProps) => {
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(
     () => new Set(SERIES.map((s) => s.key)),
   );
@@ -64,9 +69,8 @@ const DividendsSummaryChart = ({ sortedData }: DividendsSummaryChartProps) => {
   const categories = useMemo(
     () =>
       sortedData.map((item) => {
-        const d = item.recordDate || item.date;
-        const [y, m] = d.split('-');
-        return `${y.slice(2)}년<br />${parseInt(m, 10).toString().padStart(2, '0')}월`;
+        const [year, month] = item.date.split('-');
+        return `${year.slice(2)}.${month.padStart(2, '0')}`;
       }),
     [sortedData],
   );
@@ -158,7 +162,9 @@ const DividendsSummaryChart = ({ sortedData }: DividendsSummaryChartProps) => {
               const isYield = meta?.key === 'yield';
               const yStr = isYield
                 ? `${Number(p.y).toFixed(2)}%`
-                : `$${Number(p.y).toFixed(2)}`;
+                : exchangeRate
+                  ? `${formatNumber(Math.round(Number(p.y) * exchangeRate))} 원`
+                  : `${formatNumber(Number(p.y))} 달러`;
               return `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:14px;row-gap:2px;align-items:start;padding:8px 0;${sep}">
               <span style="color:hsl(215,14%,72%);font-size:11px;line-height:1.4;word-break:keep-all;overflow-wrap:break-word;">${p.series.name}</span>
               <span style="color:${p.color};font-weight:700;font-size:12px;line-height:1.35;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;">${yStr}</span>
@@ -198,7 +204,7 @@ const DividendsSummaryChart = ({ sortedData }: DividendsSummaryChartProps) => {
         ],
       },
     }),
-    [sortedData, categories, visibleKeys],
+    [sortedData, categories, visibleKeys, exchangeRate],
   );
 
   if (sortedData.length === 0) return null;

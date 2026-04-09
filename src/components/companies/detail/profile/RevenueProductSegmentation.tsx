@@ -4,8 +4,10 @@ import React from 'react';
 
 const RevenueProductSegmentation = ({
   revenueProductSegmentation,
+  exchangeRate,
 }: {
   revenueProductSegmentation: RevenueProductSegmentationType[];
+  exchangeRate: number | null;
 }) => {
   const sorted = [...revenueProductSegmentation]
     .filter((item) => parseInt(item.fiscalYear) > 2020)
@@ -27,11 +29,13 @@ const RevenueProductSegmentation = ({
               {Object.entries(item.data).map(([key, value], index) => (
                 <div
                   key={`${item.symbol}-${item.date}-product-${index}`}
-                  className="min-w-0"
+                  className="min-w-0 flex items-center gap-2"
                 >
-                  <span className="text-muted-foreground">{key}</span>
+                  <span className="text-muted-foreground">{key}: </span>
                   <span className="ml-1 font-medium text-foreground break-all">
-                    {formatNumber(value as number)} 달러
+                    {exchangeRate
+                      ? `${formatNumber((value as number) * exchangeRate)} 원`
+                      : `${formatNumber(value as number)} 달러`}
                   </span>
                 </div>
               ))}

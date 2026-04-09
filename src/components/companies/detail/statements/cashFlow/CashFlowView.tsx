@@ -9,9 +9,10 @@ import CashFlowTable from './CashFlowTable';
 
 interface CashFlowViewProps {
   symbol: string;
+  exchangeRate: number | null;
 }
 
-const CashFlowView = ({ symbol }: CashFlowViewProps) => {
+const CashFlowView = ({ symbol, exchangeRate }: CashFlowViewProps) => {
   const [period, setPeriod] = useState<PeriodType>('FY');
 
   const { data, isLoading } = useCashFlow({
@@ -22,7 +23,7 @@ const CashFlowView = ({ symbol }: CashFlowViewProps) => {
 
   const cashFlowData = (data?.data ?? []) as CashFlowItem[];
   const sortedData = cashFlowData
-    .filter((item) => parseInt(item.fiscalYear, 10) > 2020)
+    .filter((item) => parseInt(item.date.split('-')[0]) > 2020)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return (
@@ -34,8 +35,16 @@ const CashFlowView = ({ symbol }: CashFlowViewProps) => {
         </div>
       ) : (
         <>
-          <CashFlowSummaryChart sortedData={sortedData} />
-          <CashFlowTable sortedData={sortedData} />
+          <CashFlowSummaryChart
+            sortedData={sortedData}
+            exchangeRate={exchangeRate}
+            period={period}
+          />
+          <CashFlowTable
+            sortedData={sortedData}
+            exchangeRate={exchangeRate}
+            period={period}
+          />
         </>
       )}
     </div>

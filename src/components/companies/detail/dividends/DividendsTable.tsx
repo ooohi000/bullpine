@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { StatementTable } from '@/components/common/StatementTable';
-import { formatUsdNumber } from '@/lib/utils/format';
 import type { DividendsItem } from '@/types';
+import { formatNumber } from '@/lib/utils/format';
 
 const FREQUENCY_LABEL: Record<string, string> = {
   quarterly: '분기',
@@ -14,9 +14,10 @@ const FREQUENCY_LABEL: Record<string, string> = {
 
 interface DividendsTableProps {
   sortedData: DividendsItem[];
+  exchangeRate: number | null;
 }
 
-const DividendsTable = ({ sortedData }: DividendsTableProps) => {
+const DividendsTable = ({ sortedData, exchangeRate }: DividendsTableProps) => {
   if (sortedData.length === 0) {
     return (
       <div className="rounded-xl border border-border bg-card p-10 text-center text-muted-foreground">
@@ -59,7 +60,11 @@ const DividendsTable = ({ sortedData }: DividendsTableProps) => {
                   {item.paymentDate || '—'}
                 </StatementTable.Cell>
                 <StatementTable.Cell variant="year">
-                  {formatUsdNumber(item.dividend)}
+                  {item.dividend != null
+                    ? exchangeRate
+                      ? `${formatNumber(Math.round(Number(item.dividend) * exchangeRate))} 원`
+                      : `${formatNumber(item.dividend)} 달러`
+                    : '—'}
                 </StatementTable.Cell>
                 <StatementTable.Cell variant="year">
                   {item.yield != null

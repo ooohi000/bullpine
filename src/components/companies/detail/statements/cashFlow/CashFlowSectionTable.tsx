@@ -5,7 +5,7 @@ import {
   CASH_FLOW_TOTAL_FIELDS,
 } from '@/constants';
 import { formatNumber } from '@/lib/utils/format';
-import { CashFlowItem } from '@/types';
+import { CashFlowItem, PeriodType } from '@/types';
 import React from 'react';
 
 const sectionLabels: Record<keyof typeof CASH_FLOW_DISPLAY_FIELDS, string> = {
@@ -19,15 +19,19 @@ const sectionLabels: Record<keyof typeof CASH_FLOW_DISPLAY_FIELDS, string> = {
 interface CashFlowSectionTableProps {
   title: string;
   sectionKeys: (keyof typeof CASH_FLOW_DISPLAY_FIELDS)[];
-  years: { year: string; date: string; period: string }[];
+  dates: { year: string; month: string }[];
   dataByYear: Map<string, CashFlowItem>;
+  period: PeriodType;
+  exchangeRate: number | null;
 }
 
 const CashFlowSectionTable = ({
   title,
   sectionKeys,
-  years,
+  dates,
   dataByYear,
+  period,
+  exchangeRate,
 }: CashFlowSectionTableProps) => {
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
@@ -41,14 +45,15 @@ const CashFlowSectionTable = ({
               <StatementTable.Head variant="sticky-label">
                 항목
               </StatementTable.Head>
-              {years.map((year) => (
+              {dates.map((date) => (
                 <StatementTable.Head
-                  key={`${title}-${year.year}-${year.date}`}
+                  key={`${title}-${date.year}-${date.month}-head`}
                   variant="year"
+                  className="!min-w-[200px] !w-[200px] py-4"
                 >
-                  {year.period.includes('Q')
-                    ? `${year.year}년 ${year.period.split('').reverse().join('').replace('Q', '분기')}`
-                    : `${year.year}년`}
+                  {period === 'FY'
+                    ? `${date.year}년`
+                    : `${date.year}년 ${date.month}월`}
                 </StatementTable.Head>
               ))}
             </StatementTable.Row>
@@ -62,14 +67,18 @@ const CashFlowSectionTable = ({
               return (
                 <React.Fragment key={sectionKey}>
                   <StatementTable.Row isSectionLabel>
-                    <StatementTable.Cell variant="section-label">
+                    <StatementTable.Cell
+                      variant="section-label"
+                      className="bg-muted-foreground/5"
+                    >
                       {sectionLabel}
                     </StatementTable.Cell>
-                    {years.map((year) => (
+                    {dates.map((date) => (
                       <StatementTable.Cell
-                        key={`${title}-${year.year}-${year.date}`}
+                        key={`${title}-${date.year}-${date.month}-cell`}
                         variant="empty"
                         aria-hidden
+                        className="!min-w-[200px] !w-[200px] bg-muted-foreground/5"
                       />
                     ))}
                   </StatementTable.Row>
@@ -80,24 +89,29 @@ const CashFlowSectionTable = ({
                         <StatementTable.Cell
                           variant="sticky-label"
                           isTotal={isTotal}
-                          className="!bg-muted"
+                          className="!min-w-[160px] !w-[160px] !bg-muted !text-foreground/90"
                         >
                           <span className="inline-flex items-center gap-1.5">
                             {CASH_FLOW_KEY_MAP[field]}
                           </span>
                         </StatementTable.Cell>
-                        {years.map((year) => {
-                          const row = dataByYear.get(year.date);
+                        {dates.map((date) => {
+                          const row = dataByYear.get(
+                            `${date.year}-${date.month}`,
+                          );
                           const value = row?.[field];
                           const isNumber = typeof value === 'number';
                           return (
                             <StatementTable.Cell
-                              key={`${title}-${year.year}-${year.date}-${year.period}`}
+                              key={`${title}-${date.year}-${date.month}-${field}`}
                               variant="year"
                               isTotal={isTotal}
+                              className="!min-w-[200px] !w-[200px] py-4"
                             >
                               {isNumber
-                                ? formatNumber(value as number)
+                                ? exchangeRate
+                                  ? `${formatNumber(Math.round(Number(value) * exchangeRate))} 원`
+                                  : `${formatNumber(value as number)} 달러`
                                 : value != null
                                   ? String(value)
                                   : '-'}

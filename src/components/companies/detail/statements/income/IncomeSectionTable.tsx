@@ -9,6 +9,7 @@ import {
 import { formatNumber } from '@/lib/utils/format';
 import type { IncomeItem } from '@/types/statements';
 import { StatementTable } from '@/components/common/StatementTable';
+import { PeriodType } from '@/types';
 
 const sectionLabels: Record<keyof typeof INCOME_DISPLAY_FIELDS, string> = {
   revenue: '매출',
@@ -21,15 +22,19 @@ const sectionLabels: Record<keyof typeof INCOME_DISPLAY_FIELDS, string> = {
 interface IncomeSectionTableProps {
   title: string;
   sectionKeys: (keyof typeof INCOME_DISPLAY_FIELDS)[];
-  years: { year: string; date: string; period: string }[];
+  dates: { year: string; month: string }[];
   dataByYear: Map<string, IncomeItem>;
+  period: PeriodType;
+  exchangeRate: number | null;
 }
 
 const IncomeSectionTable = ({
   title,
   sectionKeys,
-  years,
+  dates,
   dataByYear,
+  period,
+  exchangeRate,
 }: IncomeSectionTableProps) => {
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
@@ -43,14 +48,15 @@ const IncomeSectionTable = ({
               <StatementTable.Head variant="sticky-label">
                 항목
               </StatementTable.Head>
-              {years.map((year) => (
+              {dates.map((date) => (
                 <StatementTable.Head
-                  key={`${title}-${year.year}-${year.date}`}
+                  key={`${title}-${date.year}-${date.month}-head`}
                   variant="year"
+                  className="!min-w-[200px] !w-[200px] py-4"
                 >
-                  {year.period.includes('Q')
-                    ? `${year.year}년 ${year.period.split('').reverse().join('').replace('Q', '분기')}`
-                    : `${year.year}년`}
+                  {period === 'FY'
+                    ? `${date.year}년`
+                    : `${date.year}년 ${date.month}월`}
                 </StatementTable.Head>
               ))}
             </StatementTable.Row>
@@ -64,14 +70,18 @@ const IncomeSectionTable = ({
               return (
                 <React.Fragment key={sectionKey}>
                   <StatementTable.Row isSectionLabel>
-                    <StatementTable.Cell variant="section-label">
+                    <StatementTable.Cell
+                      variant="section-label"
+                      className="bg-muted-foreground/5"
+                    >
                       {sectionLabel}
                     </StatementTable.Cell>
-                    {years.map((year) => (
+                    {dates.map((date) => (
                       <StatementTable.Cell
-                        key={`${title}-${year.year}-${year.date}`}
+                        key={`${title}-${date.year}-${date.month}-cell`}
                         variant="empty"
                         aria-hidden
+                        className="!min-w-[200px] !w-[200px] bg-muted-foreground/5"
                       />
                     ))}
                   </StatementTable.Row>
@@ -82,24 +92,31 @@ const IncomeSectionTable = ({
                         <StatementTable.Cell
                           variant="sticky-label"
                           isTotal={isTotal}
-                          className="!bg-muted"
+                          className="!min-w-[160px] !w-[160px] !bg-muted !text-foreground/90"
                         >
                           <span className="inline-flex items-center gap-1.5">
                             {INCOME_KEY_MAP[field]}
                           </span>
                         </StatementTable.Cell>
-                        {years.map((year) => {
-                          const row = dataByYear.get(year.date);
+                        {dates.map((date) => {
+                          const row = dataByYear.get(
+                            `${date.year}-${date.month}`,
+                          );
                           const value = row?.[field];
                           const isNumber = typeof value === 'number';
                           return (
                             <StatementTable.Cell
-                              key={`${title}-${year.year}-${year.date}-${year.period}`}
+                              key={`${title}-${date.year}-${date.month}-${field}`}
                               variant="year"
                               isTotal={isTotal}
+                              className="!min-w-[200px] !w-[200px] py-4"
                             >
                               {isNumber
-                                ? formatNumber(value as number)
+                                ? field !== 'eps' && field !== 'epsDiluted'
+                                  ? exchangeRate
+                                    ? `${formatNumber(Math.round(Number(value) * exchangeRate))} 원`
+                                    : `${formatNumber(value as number)} 달러`
+                                  : formatNumber(value as number)
                                 : value != null
                                   ? String(value)
                                   : '-'}

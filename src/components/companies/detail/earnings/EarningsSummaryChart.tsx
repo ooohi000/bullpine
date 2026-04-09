@@ -24,15 +24,13 @@ const SERIES: {
 const DEFAULT_VISIBLE_KEYS = ['epsActual', 'epsEstimated'];
 
 function formatEarningsAxisCategory(dateStr: string): string {
-  const [y, m] = dateStr.split('-');
-  if (!y || !m) return dateStr;
-  return `${y.slice(2)}년<br />${parseInt(m, 10).toString().padStart(2, '0')}월`;
+  const [year, month] = dateStr.split('-');
+  return `${year.slice(2)}.${month.padStart(2, '0')}`;
 }
 
 function formatEarningsTooltipTitle(item: EarningsItem): string {
-  const [y, m] = item.date.split('-');
-  if (!y || !m) return item.date;
-  return `${y}년 ${parseInt(m, 10)}월`;
+  const [year, month] = item.date.split('-');
+  return `${year}년 ${month.padStart(2, '0')}월`;
 }
 
 function earningsTooltipPositioner(
@@ -55,9 +53,13 @@ function earningsTooltipPositioner(
 
 interface EarningsSummaryChartProps {
   sortedData: EarningsItem[];
+  exchangeRate: number | null;
 }
 
-const EarningsSummaryChart = ({ sortedData }: EarningsSummaryChartProps) => {
+const EarningsSummaryChart = ({
+  sortedData,
+  exchangeRate,
+}: EarningsSummaryChartProps) => {
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(
     () => new Set(DEFAULT_VISIBLE_KEYS),
   );
@@ -162,7 +164,14 @@ const EarningsSummaryChart = ({ sortedData }: EarningsSummaryChartProps) => {
                 i < points.length - 1
                   ? 'border-bottom:1px solid hsl(220,14%,18%);'
                   : '';
-              const yStr = p.y != null ? formatNumber(Number(p.y)) : '-';
+              const yStr =
+                p.y != null
+                  ? p.series.name.includes('매출')
+                    ? exchangeRate
+                      ? `${formatNumber(Math.round(Number(p.y) * exchangeRate))} 원`
+                      : `${formatNumber(Number(p.y))} 달러`
+                    : formatNumber(Number(p.y))
+                  : '-';
               return `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:14px;row-gap:2px;align-items:start;padding:8px 0;${sep}">
               <span style="color:hsl(215,14%,72%);font-size:11px;line-height:1.4;word-break:keep-all;overflow-wrap:break-word;">${p.series.name}</span>
               <span style="color:${p.color};font-weight:700;font-size:12px;line-height:1.35;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;">${yStr}</span>
@@ -204,7 +213,7 @@ const EarningsSummaryChart = ({ sortedData }: EarningsSummaryChartProps) => {
         ],
       },
     }),
-    [sortedData, categories, visibleKeys],
+    [sortedData, categories, visibleKeys, exchangeRate],
   );
 
   if (sortedData.length === 0) return null;

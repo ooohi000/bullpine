@@ -1,3 +1,4 @@
+import { PeriodType } from '@/types';
 import type { FinancialRatiosItem } from '@/types/financialAnalysis';
 
 function quarterKoreanLabel(period: string): string {
@@ -7,14 +8,13 @@ function quarterKoreanLabel(period: string): string {
 /** X축 라벨 (손익·대차 차트와 동일 규칙, 회계연도 기준) */
 export function getFinancialRatiosCategories(
   sortedData: FinancialRatiosItem[],
+  period: PeriodType,
 ): string[] {
   return sortedData.map((item) => {
-    const year = item.fiscalYear;
-    return item.period?.includes('Q')
-      ? item.period === 'Q1'
-        ? `${year}년<br/>${item.period.split('').reverse().join('').replace('Q', '분기')}`
-        : item.period.split('').reverse().join('').replace('Q', '분기')
-      : `${year}년`;
+    const [year, month] = item.date.split('-');
+    return period === 'FY'
+      ? `${year}`
+      : `${year.slice(2)}.${month.padStart(2, '0')}`;
   });
 }
 
@@ -111,7 +111,11 @@ export function createFinancialRatiosSharedTooltipFormatter(
 ) {
   return function (this: unknown) {
     const ctx = this as {
-      points?: { y?: number | null; color?: string; series: { name: string } }[];
+      points?: {
+        y?: number | null;
+        color?: string;
+        series: { name: string };
+      }[];
       x?: number | string;
     };
     const points = (ctx.points ?? []).filter((p) => p.y != null);
@@ -142,7 +146,9 @@ export function createFinancialRatiosSharedTooltipFormatter(
 }
 
 /** 마진·배당 등 % 값: API가 소수(0.25)로 오면 25로 변환 */
-export function toPercentDisplay(value: number | null | undefined): number | null {
+export function toPercentDisplay(
+  value: number | null | undefined,
+): number | null {
   if (value == null || Number.isNaN(value)) return null;
   return Math.abs(value) <= 1 ? value * 100 : value;
 }

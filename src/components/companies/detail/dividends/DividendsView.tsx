@@ -8,9 +8,10 @@ import { DividendsItem } from '@/types';
 
 interface DividendsViewProps {
   symbol: string;
+  exchangeRate: number | null;
 }
 
-const DividendsView = ({ symbol }: DividendsViewProps) => {
+const DividendsView = ({ symbol, exchangeRate }: DividendsViewProps) => {
   const { data, isLoading } = useDividends({ symbol });
   const dividendsData = (data?.data ?? []) as DividendsItem[];
 
@@ -26,11 +27,15 @@ const DividendsView = ({ symbol }: DividendsViewProps) => {
         </div>
       ) : (
         <>
-          <DividendsSummaryChart sortedData={sortedData} />
+          <DividendsSummaryChart
+            sortedData={sortedData}
+            exchangeRate={exchangeRate}
+          />
           <DividendsTable
             sortedData={[...sortedData].sort(
               (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
             )}
+            exchangeRate={exchangeRate}
           />
         </>
       )}

@@ -12,6 +12,7 @@ import {
   keyMetricsResponsive,
   keyMetricsTooltipPositioner,
 } from './chartUtils';
+import { PeriodType } from '@/types';
 
 const SERIES = [
   { key: 'marketCap' as const, name: '시가총액', color: chartSeriesColor(0) },
@@ -24,10 +25,14 @@ const SERIES = [
 
 interface KeyMetricsValuationSizeChartProps {
   sortedData: KeyMetricsItem[];
+  exchangeRate: number | null;
+  period: PeriodType;
 }
 
 export default function KeyMetricsValuationSizeChart({
   sortedData,
+  exchangeRate,
+  period,
 }: KeyMetricsValuationSizeChartProps) {
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(
     () => new Set(SERIES.map((s) => s.key)),
@@ -42,8 +47,8 @@ export default function KeyMetricsValuationSizeChart({
   };
 
   const categories = useMemo(
-    () => getKeyMetricsCategories(sortedData),
-    [sortedData],
+    () => getKeyMetricsCategories(sortedData, period),
+    [sortedData, period],
   );
 
   const options: Options = useMemo(
@@ -74,6 +79,8 @@ export default function KeyMetricsValuationSizeChart({
           sortedData,
           categories,
           (y) => Number(y).toLocaleString(),
+          period,
+          exchangeRate,
         ),
       },
       responsive: keyMetricsResponsive,
@@ -97,7 +104,7 @@ export default function KeyMetricsValuationSizeChart({
         visible: visibleKeys.has(key),
       })),
     }),
-    [sortedData, categories, visibleKeys],
+    [sortedData, categories, visibleKeys, exchangeRate, period],
   );
 
   if (sortedData.length === 0) return null;

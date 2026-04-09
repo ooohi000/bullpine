@@ -12,19 +12,32 @@ import {
   financialRatiosTooltipPositioner,
   getFinancialRatiosCategories,
 } from './chartUtils';
+import { PeriodType } from '@/types';
 
-const SERIES: { key: keyof FinancialRatiosItem; name: string; color: string }[] = [
+const SERIES: {
+  key: keyof FinancialRatiosItem;
+  name: string;
+  color: string;
+}[] = [
   { key: 'priceToEarningsRatio', name: 'PER', color: chartSeriesColor(0) },
   { key: 'priceToBookRatio', name: 'PBR', color: chartSeriesColor(1) },
   { key: 'priceToSalesRatio', name: 'PSR', color: chartSeriesColor(2) },
-  { key: 'priceToFreeCashFlowRatio', name: '주가/FCF', color: chartSeriesColor(3) },
+  {
+    key: 'priceToFreeCashFlowRatio',
+    name: '주가/FCF',
+    color: chartSeriesColor(3),
+  },
 ];
 
 interface Props {
   sortedData: FinancialRatiosItem[];
+  period: PeriodType;
 }
 
-export default function FinancialRatiosValuationChart({ sortedData }: Props) {
+export default function FinancialRatiosValuationChart({
+  sortedData,
+  period,
+}: Props) {
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(
     () => new Set(SERIES.map((s) => s.key)),
   );
@@ -38,8 +51,8 @@ export default function FinancialRatiosValuationChart({ sortedData }: Props) {
   };
 
   const categories = useMemo(
-    () => getFinancialRatiosCategories(sortedData),
-    [sortedData],
+    () => getFinancialRatiosCategories(sortedData, period),
+    [sortedData, period],
   );
 
   const options: Options = useMemo(

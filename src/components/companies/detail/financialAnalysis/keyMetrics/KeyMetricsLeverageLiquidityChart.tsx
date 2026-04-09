@@ -12,6 +12,7 @@ import {
   keyMetricsResponsive,
   keyMetricsTooltipPositioner,
 } from './chartUtils';
+import { PeriodType } from '@/types';
 
 const SERIES = [
   { key: 'netDebt', name: '순부채/EBITDA', color: chartSeriesColor(0) },
@@ -20,10 +21,12 @@ const SERIES = [
 
 interface KeyMetricsLeverageLiquidityChartProps {
   sortedData: KeyMetricsItem[];
+  period: PeriodType;
 }
 
 export default function KeyMetricsLeverageLiquidityChart({
   sortedData,
+  period,
 }: KeyMetricsLeverageLiquidityChartProps) {
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(
     () => new Set(SERIES.map((s) => s.key)),
@@ -38,8 +41,8 @@ export default function KeyMetricsLeverageLiquidityChart({
   };
 
   const categories = useMemo(
-    () => getKeyMetricsCategories(sortedData),
-    [sortedData],
+    () => getKeyMetricsCategories(sortedData, period),
+    [sortedData, period],
   );
 
   const options: Options = useMemo(
@@ -75,6 +78,7 @@ export default function KeyMetricsLeverageLiquidityChart({
           sortedData,
           categories,
           (y) => Number(y).toFixed(2),
+          period,
         ),
       },
       responsive: keyMetricsResponsive,
@@ -100,7 +104,7 @@ export default function KeyMetricsLeverageLiquidityChart({
         },
       ],
     }),
-    [sortedData, categories, visibleKeys],
+    [sortedData, categories, visibleKeys, period],
   );
 
   if (sortedData.length === 0) return null;
