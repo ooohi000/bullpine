@@ -12,6 +12,7 @@ import {
   keyMetricsResponsive,
   keyMetricsTooltipPositioner,
 } from './chartUtils';
+import { PeriodType } from '@/types';
 
 const SERIES = [
   { key: 'roe', name: 'ROE', color: chartSeriesColor(0) },
@@ -21,10 +22,12 @@ const SERIES = [
 
 interface KeyMetricsProfitabilityChartProps {
   sortedData: KeyMetricsItem[];
+  period: PeriodType;
 }
 
 export default function KeyMetricsProfitabilityChart({
   sortedData,
+  period,
 }: KeyMetricsProfitabilityChartProps) {
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(
     () => new Set(SERIES.map((s) => s.key)),
@@ -39,8 +42,8 @@ export default function KeyMetricsProfitabilityChart({
   };
 
   const categories = useMemo(
-    () => getKeyMetricsCategories(sortedData),
-    [sortedData],
+    () => getKeyMetricsCategories(sortedData, period),
+    [sortedData, period],
   );
 
   const options: Options = useMemo(
@@ -65,6 +68,7 @@ export default function KeyMetricsProfitabilityChart({
           sortedData,
           categories,
           (y) => `${Number(y).toFixed(2)}%`,
+          period,
         ),
       },
       responsive: keyMetricsResponsive,
@@ -103,7 +107,7 @@ export default function KeyMetricsProfitabilityChart({
         },
       ],
     }),
-    [sortedData, categories, visibleKeys],
+    [sortedData, categories, visibleKeys, period],
   );
 
   if (sortedData.length === 0) return null;

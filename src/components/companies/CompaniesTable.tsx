@@ -8,9 +8,11 @@ import {
   SECTOR_FALLBACK,
 } from '@/constants';
 import { formatNumber } from '@/lib';
+import { ExchangeRate } from '@/types';
 
 interface CompaniesTableProps {
   content: Company[];
+  exchangeRate: ExchangeRate | null;
 }
 
 const sectorLabel = (sector: string) =>
@@ -22,7 +24,7 @@ const industryLabel = (industry: string) =>
 const countryLabel = (country: string) =>
   COUNTRY_FALLBACK.find((c) => c.value === country)?.label || country;
 
-const CompaniesTable = ({ content }: CompaniesTableProps) => {
+const CompaniesTable = ({ content, exchangeRate }: CompaniesTableProps) => {
   const searchParams = useSearchParams();
   const params = searchParams.get('search')
     ? `page=${searchParams.get('page')}&search=${searchParams.get('search')}`
@@ -36,25 +38,30 @@ const CompaniesTable = ({ content }: CompaniesTableProps) => {
     <TableComponent.table>
       <TableComponent.tableHeader className="!text-xs md:!text-sm">
         <TableComponent.tableRow className="border-b border-border">
-          <TableComponent.tableHead className="w-[30%] md:table-cell">
+          <TableComponent.tableHead className="w-[20%] md:table-cell">
             회사명
           </TableComponent.tableHead>
           <TableComponent.tableHead className="hidden w-[10%] whitespace-nowrap md:table-cell">
             종목코드
           </TableComponent.tableHead>
-          <TableComponent.tableHead className="hidden min-w-0 w-[16%] md:w-[12%] md:table-cell">
+          <TableComponent.tableHead className="hidden min-w-0 w-[14%] md:table-cell">
             업종
           </TableComponent.tableHead>
-          <TableComponent.tableHead className="hidden w-[16%] md:table-cell">
+          <TableComponent.tableHead className="hidden w-[14%] md:table-cell">
             산업
           </TableComponent.tableHead>
-          <TableComponent.tableHead className="hidden w-[10%] whitespace-nowrap md:w-[10%] md:table-cell">
+          <TableComponent.tableHead className="hidden w-[10%] whitespace-nowrap md:table-cell">
             거래소
           </TableComponent.tableHead>
-          <TableComponent.tableHead className="hidden w-[14%] md:table-cell">
-            시총
+          <TableComponent.tableHead className="hidden w-[22%] md:table-cell">
+            <div className="flex flex-col gap-1">
+              <p className="font-medium">시가총액</p>
+              <p className="text-xs text-muted-foreground">
+                {exchangeRate ? `(환율: ${exchangeRate.price} 원)` : ''}
+              </p>
+            </div>
           </TableComponent.tableHead>
-          <TableComponent.tableHead className="hidden w-[8%] md:table-cell">
+          <TableComponent.tableHead className="hidden w-[10%] md:table-cell">
             국가
           </TableComponent.tableHead>
         </TableComponent.tableRow>
@@ -100,7 +107,9 @@ const CompaniesTable = ({ content }: CompaniesTableProps) => {
               {company.exchangeShortName}
             </TableComponent.tableCell>
             <TableComponent.tableCell className="hidden break-keep md:table-cell">
-              {formatNumber(company.marketCap)} 달러
+              {exchangeRate
+                ? `${formatNumber(Math.round(company.marketCap * exchangeRate.price))} 원`
+                : `${formatNumber(company.marketCap)} 달러`}
             </TableComponent.tableCell>
             <TableComponent.tableCell className="hidden md:table-cell">
               {countryLabel(company.country)}

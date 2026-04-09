@@ -1,4 +1,9 @@
+export interface OwnerEarningsProps {
+  symbol: string;
+}
+
 export interface OwnerEarningsItem {
+  id: number;
   symbol: string;
   reportedCurrency: string;
   fiscalYear: string;
@@ -12,5 +17,8 @@ export interface OwnerEarningsItem {
 }
 
 export interface OwnerEarningsResponse {
+  success: boolean;
   data: OwnerEarningsItem[];
+  message?: string;
+  errorCode?: string;
 }

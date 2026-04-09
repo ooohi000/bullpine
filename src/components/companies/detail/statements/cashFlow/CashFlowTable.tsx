@@ -1,5 +1,5 @@
 import React from 'react';
-import { CashFlowItem, CashFlowSectionKey } from '@/types';
+import { CashFlowItem, CashFlowSectionKey, PeriodType } from '@/types';
 import CashFlowSectionTable from './CashFlowSectionTable';
 
 const CASH_FLOW_SECTION_KEYS: CashFlowSectionKey[] = [
@@ -12,15 +12,25 @@ const CASH_FLOW_SECTION_KEYS: CashFlowSectionKey[] = [
 
 interface CashFlowTableProps {
   sortedData: CashFlowItem[];
+  exchangeRate: number | null;
+  period: PeriodType;
 }
 
-const CashFlowTable = ({ sortedData }: CashFlowTableProps) => {
-  const years = sortedData.map((item) => ({
-    year: item.fiscalYear,
-    date: item.date,
-    period: item.period,
+const CashFlowTable = ({
+  sortedData,
+  exchangeRate,
+  period,
+}: CashFlowTableProps) => {
+  const dates = sortedData.map((item) => ({
+    year: item.date.split('-')[0],
+    month: item.date.split('-')[1],
   }));
-  const dataByYear = new Map(sortedData.map((item) => [item.date, item]));
+  const dataByYear = new Map(
+    sortedData.map((item) => [
+      `${item.date.split('-')[0]}-${item.date.split('-')[1]}`,
+      item,
+    ]),
+  );
 
   if (sortedData.length === 0) {
     return (
@@ -36,8 +46,10 @@ const CashFlowTable = ({ sortedData }: CashFlowTableProps) => {
         <CashFlowSectionTable
           title="전체 항목"
           sectionKeys={CASH_FLOW_SECTION_KEYS}
-          years={years}
+          dates={dates}
           dataByYear={dataByYear}
+          period={period}
+          exchangeRate={exchangeRate}
         />
       </div>
     </div>

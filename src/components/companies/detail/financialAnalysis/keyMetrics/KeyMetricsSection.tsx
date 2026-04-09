@@ -29,9 +29,13 @@ const CHART_TABS: { id: KeyMetricsChartId; label: string }[] = [
 
 interface KeyMetricsSectionProps {
   symbol: string;
+  exchangeRate: number | null;
 }
 
-const KeyMetricsSection = ({ symbol }: KeyMetricsSectionProps) => {
+const KeyMetricsSection = ({
+  symbol,
+  exchangeRate,
+}: KeyMetricsSectionProps) => {
   const [period, setPeriod] = useState<PeriodType>('FY');
   const [activeChart, setActiveChart] =
     useState<KeyMetricsChartId>('valuationSize');
@@ -43,9 +47,8 @@ const KeyMetricsSection = ({ symbol }: KeyMetricsSectionProps) => {
   });
 
   const keyMetricsData = (data?.data ?? []) as KeyMetricsItem[];
-
   const sortedData = keyMetricsData
-    .filter((item) => parseInt(item.fiscalYear, 10) > 2020)
+    .filter((item) => parseInt(item.date.split('-')[0]) > 2020)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return (
@@ -76,23 +79,40 @@ const KeyMetricsSection = ({ symbol }: KeyMetricsSectionProps) => {
                 ))}
               </div>
               {activeChart === 'valuationSize' && (
-                <KeyMetricsValuationSizeChart sortedData={sortedData} />
+                <KeyMetricsValuationSizeChart
+                  sortedData={sortedData}
+                  exchangeRate={exchangeRate}
+                  period={period}
+                />
               )}
               {activeChart === 'profitability' && (
-                <KeyMetricsProfitabilityChart sortedData={sortedData} />
+                <KeyMetricsProfitabilityChart
+                  sortedData={sortedData}
+                  period={period}
+                />
               )}
               {activeChart === 'valuationMultiples' && (
-                <KeyMetricsValuationMultiplesChart sortedData={sortedData} />
+                <KeyMetricsValuationMultiplesChart
+                  sortedData={sortedData}
+                  period={period}
+                />
               )}
               {activeChart === 'leverageLiquidity' && (
-                <KeyMetricsLeverageLiquidityChart sortedData={sortedData} />
+                <KeyMetricsLeverageLiquidityChart
+                  sortedData={sortedData}
+                  period={period}
+                />
               )}
               {activeChart === 'yield' && (
-                <KeyMetricsYieldChart sortedData={sortedData} />
+                <KeyMetricsYieldChart sortedData={sortedData} period={period} />
               )}
             </div>
           )}
-          <KeyMetricsTable sortedData={sortedData} />
+          <KeyMetricsTable
+            sortedData={sortedData}
+            exchangeRate={exchangeRate}
+            period={period}
+          />
         </>
       )}
     </div>

@@ -1,22 +1,31 @@
 'use client';
 
-import type { BalanceSheetItem } from '@/types';
+import type { BalanceSheetItem, PeriodType } from '@/types';
 import React from 'react';
-import BalanceSheetSummarySectionTable from './BalanceSheetSummarySectionTable';
 import BalanceSheetSectionTable from './BalanceSheetSectionTable';
 
 interface BalanceSheetTableProps {
   sortedData: BalanceSheetItem[];
+  exchangeRate: number | null;
+  period: PeriodType;
 }
 
-const BalanceSheetTable = ({ sortedData }: BalanceSheetTableProps) => {
+const BalanceSheetTable = ({
+  sortedData,
+  exchangeRate,
+  period,
+}: BalanceSheetTableProps) => {
   // 표시용 연도: 결산일(date) 기준. fiscalYear는 회사 회계연도라 2026 등 미래가 나올 수 있음
-  const years = sortedData.map((item) => ({
-    year: item.fiscalYear,
-    date: item.date,
-    period: item.period,
+  const dates = sortedData.map((item) => ({
+    year: item.date.split('-')[0],
+    month: item.date.split('-')[1],
   }));
-  const dataByYear = new Map(sortedData.map((item) => [item.date, item]));
+  const dataByYear = new Map(
+    sortedData.map((item) => [
+      `${item.date.split('-')[0]}-${item.date.split('-')[1]}`,
+      item,
+    ]),
+  );
 
   if (sortedData.length === 0) {
     return (
@@ -28,9 +37,6 @@ const BalanceSheetTable = ({ sortedData }: BalanceSheetTableProps) => {
 
   return (
     <div className="flex flex-col gap-10">
-      {/* 합계 요약: 자산·부채·자본별 연도 비교 */}
-      {/* <BalanceSheetSummarySectionTable years={years} dataByYear={dataByYear} /> */}
-
       {/* 대차대조표: 왼쪽 자산, 오른쪽 부채·자본 */}
       <div className="flex flex-col gap-6">
         {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6"> */}
@@ -38,22 +44,28 @@ const BalanceSheetTable = ({ sortedData }: BalanceSheetTableProps) => {
           <BalanceSheetSectionTable
             title="자본"
             sectionKeys={['equity']}
-            years={years}
+            dates={dates}
             dataByYear={dataByYear}
+            period={period}
+            exchangeRate={exchangeRate}
           />
           <BalanceSheetSectionTable
             title="부채"
             sectionKeys={['currentLiabilities', 'nonCurrentLiabilities']}
-            years={years}
+            dates={dates}
             dataByYear={dataByYear}
+            period={period}
+            exchangeRate={exchangeRate}
           />
         </div>
 
         <BalanceSheetSectionTable
           title="자산"
           sectionKeys={['currentAssets', 'nonCurrentAssets']}
-          years={years}
+          dates={dates}
           dataByYear={dataByYear}
+          period={period}
+          exchangeRate={exchangeRate}
         />
       </div>
       {/* </div> */}

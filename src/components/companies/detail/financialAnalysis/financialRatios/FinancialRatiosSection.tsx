@@ -48,7 +48,7 @@ const FinancialRatiosSection = ({ symbol }: FinancialRatiosSectionProps) => {
   const financialRatiosData = (data?.data ?? []) as FinancialRatiosItem[];
 
   const sortedData = financialRatiosData
-    .filter((item) => parseInt(item.fiscalYear, 10) > 2020)
+    .filter((item) => parseInt(item.date.split('-')[0]) > 2020)
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return (
@@ -79,26 +79,44 @@ const FinancialRatiosSection = ({ symbol }: FinancialRatiosSectionProps) => {
                 ))}
               </div>
               {activeChart === 'profitability' && (
-                <FinancialRatiosProfitabilityChart sortedData={sortedData} />
+                <FinancialRatiosProfitabilityChart
+                  sortedData={sortedData}
+                  period={period}
+                />
               )}
               {activeChart === 'valuation' && (
-                <FinancialRatiosValuationChart sortedData={sortedData} />
+                <FinancialRatiosValuationChart
+                  sortedData={sortedData}
+                  period={period}
+                />
               )}
               {activeChart === 'liquidity' && (
-                <FinancialRatiosLiquidityChart sortedData={sortedData} />
+                <FinancialRatiosLiquidityChart
+                  sortedData={sortedData}
+                  period={period}
+                />
               )}
               {activeChart === 'leverage' && (
-                <FinancialRatiosLeverageChart sortedData={sortedData} />
+                <FinancialRatiosLeverageChart
+                  sortedData={sortedData}
+                  period={period}
+                />
               )}
               {activeChart === 'dividend' && (
-                <FinancialRatiosDividendChart sortedData={sortedData} />
+                <FinancialRatiosDividendChart
+                  sortedData={sortedData}
+                  period={period}
+                />
               )}
               {activeChart === 'perShare' && (
-                <FinancialRatiosPerShareChart sortedData={sortedData} />
+                <FinancialRatiosPerShareChart
+                  sortedData={sortedData}
+                  period={period}
+                />
               )}
             </div>
           )}
-          <FinancialRatiosTable sortedData={sortedData} />
+          <FinancialRatiosTable sortedData={sortedData} period={period} />
         </>
       )}
     </div>

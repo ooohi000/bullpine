@@ -13,8 +13,13 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Pagination from '../common/Pagination';
 import useStockList from '@/hooks/api/stocks/useStockList';
 import Select, { SelectOption } from '../common/Select';
+import { ExchangeRate } from '@/types';
 
-const CompaniesClient = () => {
+const CompaniesClient = ({
+  exchangeRate,
+}: {
+  exchangeRate: ExchangeRate | null;
+}) => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -182,7 +187,10 @@ const CompaniesClient = () => {
         ) : data && data.content?.length > 0 ? (
           <>
             <div className="min-w-0 overflow-x-auto">
-              <CompaniesTable content={data.content} />
+              <CompaniesTable
+                content={data.content}
+                exchangeRate={exchangeRate}
+              />
             </div>
             {data.totalPages > 0 && (
               <div className="border-t border-border py-4 bg-muted/30">

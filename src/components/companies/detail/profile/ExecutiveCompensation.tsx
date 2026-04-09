@@ -22,9 +22,13 @@ const genderFromGender = (gender: string): string => {
 
 interface ExecutiveCompensationProps {
   executives: ExecutivesItem[];
+  exchangeRate: number | null;
 }
 
-const ExecutiveCompensation = ({ executives }: ExecutiveCompensationProps) => {
+const ExecutiveCompensation = ({
+  executives,
+  exchangeRate,
+}: ExecutiveCompensationProps) => {
   if (!executives.length) {
     return (
       <div className="rounded-xl border border-border bg-card p-6">
@@ -48,16 +52,16 @@ const ExecutiveCompensation = ({ executives }: ExecutiveCompensationProps) => {
               <th className="sticky left-0 z-10 min-w-[100px] bg-muted px-4 py-2.5 text-left text-xs font-medium text-foreground">
                 이름
               </th>
-              <th className="min-w-[50px] px-3 py-2.5 text-right text-xs font-medium text-muted-foreground">
+              <th className="min-w-[90px] px-3 py-2.5 text-right text-xs font-medium text-muted-foreground">
                 성별
               </th>
-              <th className="min-w-[50px] px-3 py-2.5 text-right text-xs font-medium text-muted-foreground">
+              <th className="min-w-[90px] px-3 py-2.5 text-right text-xs font-medium text-muted-foreground">
                 나이
               </th>
-              <th className="min-w-[90px] px-4 py-2.5 text-left text-xs font-medium text-foreground">
+              <th className="min-w-[200px] px-4 py-2.5 text-left text-xs font-medium text-foreground">
                 직책
               </th>
-              <th className="min-w-[140px] px-3 py-2.5 text-right text-xs font-medium text-muted-foreground">
+              <th className="min-w-[200px] px-3 py-2.5 text-right text-xs font-medium text-muted-foreground">
                 연봉
               </th>
             </tr>
@@ -85,7 +89,9 @@ const ExecutiveCompensation = ({ executives }: ExecutiveCompensationProps) => {
                     </td>
                     <td className="py-3 px-3 text-right tabular-nums text-muted-foreground">
                       {executive.pay
-                        ? `${formatNumber(executive.pay)} 달러`
+                        ? exchangeRate
+                          ? `${formatNumber(executive.pay * exchangeRate)} 원`
+                          : `${formatNumber(executive.pay)} 달러`
                         : '밝히지 않음'}
                     </td>
                   </tr>

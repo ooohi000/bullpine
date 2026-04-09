@@ -14,6 +14,7 @@ function formatDays(value: number): string {
 export function formatMetricValue(
   key: keyof KeyMetricsItem,
   value: number | null | undefined,
+  exchangeRate: number | null = null,
 ): string {
   if (value === null || value === undefined || Number.isNaN(value)) return '—';
 
@@ -24,7 +25,9 @@ export function formatMetricValue(
     key === 'workingCapital' ||
     key === 'investedCapital'
   ) {
-    return formatNumber(Math.round(value));
+    return exchangeRate
+      ? `${formatNumber(Math.round(Number(value) * exchangeRate))} 원`
+      : `${formatNumber(value as number)} 달러`;
   }
 
   // percent (returns / yields)

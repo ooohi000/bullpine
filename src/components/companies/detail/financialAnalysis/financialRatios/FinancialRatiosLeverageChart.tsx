@@ -12,18 +12,35 @@ import {
   financialRatiosTooltipPositioner,
   getFinancialRatiosCategories,
 } from './chartUtils';
+import { PeriodType } from '@/types';
 
-const SERIES: { key: keyof FinancialRatiosItem; name: string; color: string }[] = [
-  { key: 'debtToEquityRatio', name: '부채비율 (D/E)', color: chartSeriesColor(0) },
+const SERIES: {
+  key: keyof FinancialRatiosItem;
+  name: string;
+  color: string;
+}[] = [
+  {
+    key: 'debtToEquityRatio',
+    name: '부채비율 (D/E)',
+    color: chartSeriesColor(0),
+  },
   { key: 'debtToAssetsRatio', name: '부채/자산', color: chartSeriesColor(1) },
-  { key: 'interestCoverageRatio', name: '이자보상배율', color: chartSeriesColor(2) },
+  {
+    key: 'interestCoverageRatio',
+    name: '이자보상배율',
+    color: chartSeriesColor(2),
+  },
 ];
 
 interface Props {
   sortedData: FinancialRatiosItem[];
+  period: PeriodType;
 }
 
-export default function FinancialRatiosLeverageChart({ sortedData }: Props) {
+export default function FinancialRatiosLeverageChart({
+  sortedData,
+  period,
+}: Props) {
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(
     () => new Set(SERIES.map((s) => s.key)),
   );
@@ -37,8 +54,8 @@ export default function FinancialRatiosLeverageChart({ sortedData }: Props) {
   };
 
   const categories = useMemo(
-    () => getFinancialRatiosCategories(sortedData),
-    [sortedData],
+    () => getFinancialRatiosCategories(sortedData, period),
+    [sortedData, period],
   );
 
   const options: Options = useMemo(

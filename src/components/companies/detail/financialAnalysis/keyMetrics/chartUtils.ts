@@ -1,28 +1,28 @@
+import { PeriodType } from '@/types';
 import type { KeyMetricsItem } from '@/types/financialAnalysis';
-
-function quarterKoreanLabel(period: string): string {
-  return period.split('').reverse().join('').replace(/Q/gi, '분기');
-}
+import { formatNumber } from '@/lib/utils/format';
 
 /** X축 라벨 (재무 차트와 동일 규칙, 회계연도 기준) */
-export function getKeyMetricsCategories(sortedData: KeyMetricsItem[]): string[] {
+export function getKeyMetricsCategories(
+  sortedData: KeyMetricsItem[],
+  period: PeriodType,
+): string[] {
   return sortedData.map((item) => {
-    const year = item.fiscalYear;
-    return item.period?.includes('Q')
-      ? item.period === 'Q1'
-        ? `${year}년<br/>${item.period.split('').reverse().join('').replace('Q', '분기')}`
-        : item.period.split('').reverse().join('').replace('Q', '분기')
-      : `${year}년`;
+    const [year, month] = item.date.split('-');
+    return period === 'FY'
+      ? `${year}`
+      : `${year.slice(2)}.${month.padStart(2, '0')}`;
   });
 }
 
-export function formatKeyMetricsTooltipPeriodTitle(item: KeyMetricsItem): string {
-  const year = item.fiscalYear;
-  const p = (item.period ?? '').trim();
-  if (/Q/i.test(p)) {
-    return `${year}년 ${quarterKoreanLabel(p)}`;
-  }
-  return `${year}년`;
+export function formatKeyMetricsTooltipPeriodTitle(
+  item: KeyMetricsItem,
+  period: PeriodType,
+): string {
+  const [year, month] = item.date.split('-');
+  return period === 'FY'
+    ? `${year}년`
+    : `${year}년 ${month.padStart(2, '0')}월`;
 }
 
 const CHART_AXIS_STYLE = {
@@ -105,10 +105,16 @@ export function createKeyMetricsSharedTooltipFormatter(
   sortedData: KeyMetricsItem[],
   categories: string[],
   formatY: (y: number) => string,
+  period: PeriodType,
+  exchangeRate: number | null = null,
 ) {
   return function (this: unknown) {
     const ctx = this as {
-      points?: { y?: number | null; color?: string; series: { name: string } }[];
+      points?: {
+        y?: number | null;
+        color?: string;
+        series: { name: string };
+      }[];
       x?: number | string;
     };
     const points = (ctx.points ?? []).filter((p) => p.y != null);
@@ -116,18 +122,23 @@ export function createKeyMetricsSharedTooltipFormatter(
     const idx = Number(ctx.x);
     const item = sortedData[idx];
     const dateLabel = item
-      ? formatKeyMetricsTooltipPeriodTitle(item)
+      ? formatKeyMetricsTooltipPeriodTitle(item, period)
       : (categories[idx] ?? '').replace(/<br\s*\/?>/gi, ' ');
     const rows = points
       .map((p, i) => {
+        const yValue =
+          (p.series.name.includes('시가총액') ||
+            p.series.name.includes('기업가치')) &&
+          exchangeRate
+            ? `${formatNumber(Math.round(Number(p.y) * exchangeRate))} 원`
+            : Number(p.y).toFixed(2);
         const sep =
           i < points.length - 1
             ? 'border-bottom:1px solid hsl(220,14%,18%);'
             : '';
-        const yStr = p.y != null ? formatY(Number(p.y)) : '-';
         return `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:14px;row-gap:2px;align-items:start;padding:8px 0;${sep}">
               <span style="color:hsl(215,14%,72%);font-size:11px;line-height:1.4;word-break:keep-all;overflow-wrap:break-word;">${p.series.name}</span>
-              <span style="color:${p.color};font-weight:700;font-size:12px;line-height:1.35;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;">${yStr}</span>
+              <span style="color:${p.color};font-weight:700;font-size:12px;line-height:1.35;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;">${yValue}</span>
             </div>`;
       })
       .join('');

@@ -1,4 +1,5 @@
 import KeyMetricsSection from '@/components/companies/detail/financialAnalysis/keyMetrics/KeyMetricsSection';
+import { getExchangeRateService } from '@/services/exchangeRate/getExchangeRateService';
 import React from 'react';
 
 const KeyMetricsPage = async ({
@@ -8,6 +9,7 @@ const KeyMetricsPage = async ({
 }) => {
   const resolvedParams = await Promise.resolve(params);
   const { symbol } = resolvedParams;
+  const exchangeRate = await getExchangeRateService();
 
   return (
     <div className="flex flex-col gap-10 pt-4">
@@ -16,7 +18,10 @@ const KeyMetricsPage = async ({
           {symbol.toUpperCase()} 핵심 지표
         </h1>
       </header>
-      <KeyMetricsSection symbol={symbol} />
+      <KeyMetricsSection
+        symbol={symbol}
+        exchangeRate={exchangeRate.data.price ?? null}
+      />
     </div>
   );
 };

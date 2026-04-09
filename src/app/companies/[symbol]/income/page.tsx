@@ -1,5 +1,6 @@
 import React from 'react';
 import IncomeView from '@/components/companies/detail/statements/income/IncomeView';
+import { getExchangeRateService } from '@/services/exchangeRate/getExchangeRateService';
 
 interface CompanyIncomePageProps {
   params: Promise<{ symbol: string }> | { symbol: string };
@@ -8,6 +9,7 @@ interface CompanyIncomePageProps {
 const CompanyIncomePage = async ({ params }: CompanyIncomePageProps) => {
   const resolvedParams = await Promise.resolve(params);
   const { symbol } = resolvedParams;
+  const exchangeRate = await getExchangeRateService();
 
   return (
     <div className="flex flex-col gap-10 pt-4">
@@ -16,7 +18,10 @@ const CompanyIncomePage = async ({ params }: CompanyIncomePageProps) => {
           {symbol.toUpperCase()} 손익계산서
         </h1>
       </header>
-      <IncomeView symbol={symbol} />
+      <IncomeView
+        symbol={symbol}
+        exchangeRate={exchangeRate.data.price ?? null}
+      />
     </div>
   );
 };

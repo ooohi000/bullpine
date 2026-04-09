@@ -3,24 +3,28 @@
 import { StatementTable } from '@/components/common/StatementTable';
 import { KEY_METRICS_CONFIG } from '@/constants/financialAnalysis';
 import { formatMetricValue } from '@/lib/companies/ratios';
-import { KeyMetricsItem } from '@/types';
+import { KeyMetricsItem, PeriodType } from '@/types';
 import React from 'react';
 import MetricInfo from '../MetricInfo';
 
 interface KeyMetricsTableProps {
   sortedData: KeyMetricsItem[];
+  exchangeRate: number | null;
+  period: PeriodType;
 }
 
-const periodLabel = (item: KeyMetricsItem) => {
-  const year = item.fiscalYear;
-  if (item.period.includes('Q')) {
-    const q = item.period.split('').reverse().join('').replace('Q', '분기');
-    return `${year}년 ${q}`;
-  }
-  return `${year}년`;
+const periodLabel = (item: KeyMetricsItem, period: PeriodType) => {
+  const [year, month] = item.date.split('-');
+  return period === 'FY'
+    ? `${year}년`
+    : `${year}년 ${month.padStart(2, '0')}월`;
 };
 
-const KeyMetricsTable = ({ sortedData }: KeyMetricsTableProps) => {
+const KeyMetricsTable = ({
+  sortedData,
+  exchangeRate,
+  period,
+}: KeyMetricsTableProps) => {
   if (sortedData.length === 0) {
     return (
       <div className="rounded-xl border border-border bg-card p-10 text-center text-muted-foreground">
@@ -45,9 +49,9 @@ const KeyMetricsTable = ({ sortedData }: KeyMetricsTableProps) => {
                 <StatementTable.Head
                   key={item.date}
                   variant="year"
-                  className="min-w-[140px] text-muted-foreground"
+                  className="!min-w-[200px] !w-[200px] py-4"
                 >
-                  {periodLabel(item)}
+                  {periodLabel(item, period)}
                 </StatementTable.Head>
               ))}
             </StatementTable.Row>
@@ -60,7 +64,7 @@ const KeyMetricsTable = ({ sortedData }: KeyMetricsTableProps) => {
                   className="!min-w-[160px] !w-[160px] !bg-muted font-medium text-foreground"
                 >
                   <div className="flex items-center justify-between gap-1">
-                    <span className="inline-flex items-center gap-1">
+                    <span className="inline-flex items-center gap-1 !text-foreground/90">
                       {label}
                     </span>
                     <MetricInfo description={description} formula={formula} />
@@ -73,9 +77,9 @@ const KeyMetricsTable = ({ sortedData }: KeyMetricsTableProps) => {
                     <StatementTable.Cell
                       key={`${item.date}-${key}`}
                       variant="year"
-                      className="text-muted-foreground"
+                      className="!min-w-[200px] !w-[200px] py-4"
                     >
-                      {formatMetricValue(key, num)}
+                      {formatMetricValue(key, num, exchangeRate)}
                     </StatementTable.Cell>
                   );
                 })}
