@@ -23,7 +23,9 @@ const CompaniesClient = ({
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  /** 입력창 전용. 목록 검색어는 URL(`search` 쿼리)만 사용 → 타이핑마다 API 호출 없음, 뒤로가기와 일치 */
   const [search, setSearch] = useState(searchParams.get('search') || '');
+  const urlSearch = searchParams.get('search') ?? '';
   const [selectedExchange, setSelectedExchange] = useState<SelectOption>(
     EXCHANGE_FALLBACK[0],
   );
@@ -41,7 +43,7 @@ const CompaniesClient = ({
     setSearch(e.target.value);
   };
   const { data, isLoading, refetch, isFetching } = useStockList({
-    search,
+    search: urlSearch,
     page: page - 1,
     limit: LIMIT,
     exchange: selectedExchange.value,
@@ -105,8 +107,17 @@ const CompaniesClient = ({
     const params = new URLSearchParams(searchParams);
     search ? params.set('search', search) : params.delete('search');
     params.set('page', '1');
+    const nextSearch = search || '';
+    const currentSearch = searchParams.get('search') || '';
+    const searchWillChange = nextSearch !== currentSearch;
+
     router.push(`/companies?${params.toString()}`);
-    page > 1 ? setPage(1) : refetch();
+    if (page > 1) {
+      setPage(1);
+    } else if (!searchWillChange) {
+      // URL·queryKey가 그대로일 때만(같은 검색으로 다시 검색) 수동 새로고침
+      refetch();
+    }
   };
 
   const handlePageChange = (nextPage: number) => {

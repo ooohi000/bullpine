@@ -10,6 +10,9 @@ export const CHART_SERIES_COLORS = [
   'hsl(8, 75%, 56%)',
   'hsl(32, 88%, 56%)',
   'hsl(348, 58%, 55%)',
+  'hsl(27, 92.00%, 34.30%)',
+  'hsl(308, 93.40%, 47.80%)',
+  'hsl(61, 97.40%, 44.70%)',
 ] as const;
 
 export function chartSeriesColor(index: number): string {

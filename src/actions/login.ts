@@ -28,9 +28,10 @@ const getErrorMessage = (error: unknown): string => {
  * RHF `handleSubmit`에서 객체로 호출.
  * 성공 시 토큰은 httpOnly 쿠키에만 저장( XSS 시 스크립트로 읽기 어려움 ) 후 redirect.
  */
+/** 성공 시 `redirect()`로 반환값 없이 종료 → 클라이언트에서는 `undefined`일 수 있음 */
 export async function loginAction(
   payload: unknown,
-): Promise<LoginActionResult> {
+): Promise<LoginActionResult | undefined> {
   const parsed = loginSchema.safeParse(payload);
   if (!parsed.success) {
     const first = parsed.error.issues[0]?.message ?? '입력값을 확인해주세요.';

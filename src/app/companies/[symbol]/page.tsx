@@ -45,6 +45,7 @@ const CompanyDetailPage = async ({ params }: CompanyDetailPageProps) => {
       {companyProfile.success ? (
         <CompanyProfile
           companyProfile={companyProfile.data[0] ?? []}
+          employeeCount={employeeCount.data ?? []}
           exchangeRate={exchangeRate.data.price ?? null}
           shareFloat={shareFloat.data[0] ?? []}
         />

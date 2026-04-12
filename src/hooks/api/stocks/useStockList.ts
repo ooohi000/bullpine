@@ -22,7 +22,16 @@ const useStockList = ({
   country = '',
 }: UseStockListProps) => {
   return useQuery({
-    queryKey: ['stockList', page, limit, exchange, sector, industry, country],
+    queryKey: [
+      'stockList',
+      page,
+      limit,
+      search,
+      exchange,
+      sector,
+      industry,
+      country,
+    ],
     queryFn: (): Promise<GetStockListData> =>
       getStockList({
         page,

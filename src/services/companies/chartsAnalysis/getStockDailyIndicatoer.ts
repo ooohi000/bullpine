@@ -1,17 +1,19 @@
-import { BaseUrl } from '@/services/baseUrl';
-import { EnterpriseValuesProps, EnterpriseValuesResponse } from '@/types';
+import {
+  StockDailyIndicatorProps,
+  StockDailyIndicatorResponse,
+} from '@/types/chartsAnalysis/stockDailyIndicator';
 
-export const getEnterpriseValues = async ({
+export const getStockDailyIndicator = async ({
   symbol,
   from,
   to,
-}: EnterpriseValuesProps): Promise<EnterpriseValuesResponse> => {
+}: StockDailyIndicatorProps): Promise<StockDailyIndicatorResponse> => {
   const params = new URLSearchParams();
   params.set('symbol', symbol);
   from ? params.set('from', from) : '';
   to ? params.set('to', to) : '';
   const response = await fetch(
-    `/api/companies/${symbol}/chartsAnalysis/enterpriseValues?${params.toString()}`,
+    `/api/companies/${symbol}/chartsAnalysis/stockDailyIndicator?${params.toString()}`,
     {
       method: 'GET',
       headers: {

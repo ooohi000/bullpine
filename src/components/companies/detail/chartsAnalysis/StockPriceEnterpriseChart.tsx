@@ -2,10 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import HighchartsChart from '@/components/common/HighchartsChart';
-import type {
-  EnterpriseValuesItem,
-  StockPriceAndVolumeItem,
-} from '@/types/chartsAnalysis';
+import type { StockPriceAndVolumeItem } from '@/types/chartsAnalysis';
 import type { Options } from 'highcharts';
 import { chartSeriesColor } from '@/constants/chartSeriesColors';
 
@@ -14,25 +11,16 @@ const toTs = (dateStr: string) => {
   return Date.UTC(y, m - 1, d);
 };
 
-/** 원달러 기준으로 B/T 포맷 */
-const formatB = (valueDollars: number) => {
-  if (valueDollars >= 1e12) return `$${(valueDollars / 1e12).toFixed(2)}T`;
-  return `$${(valueDollars / 1e9).toFixed(2)}B`;
-};
-
 const SERIES_OPTIONS = [
   { key: 'stock-price' as const, name: '주가', color: chartSeriesColor(0) },
-  { key: 'market-cap' as const, name: '시가총액', color: chartSeriesColor(1) },
 ];
 
 interface StockPriceEnterpriseChartProps {
   sortedStockPriceAndVolume: StockPriceAndVolumeItem[];
-  sortedEnterpriseValues: EnterpriseValuesItem[];
 }
 
 const StockPriceEnterpriseChart = ({
   sortedStockPriceAndVolume,
-  sortedEnterpriseValues,
 }: StockPriceEnterpriseChartProps) => {
   const [visibleKeys, setVisibleKeys] = useState<Set<string>>(
     () => new Set(SERIES_OPTIONS.map((s) => s.key)),
@@ -47,25 +35,17 @@ const StockPriceEnterpriseChart = ({
     });
   };
 
-  const { closePriceData, marketCapData } = useMemo(() => {
+  const { closePriceData } = useMemo(() => {
     const daily = sortedStockPriceAndVolume ?? [];
-    const evList = sortedEnterpriseValues ?? [];
-
     const close: [number, number][] = daily.map((item) => [
       toTs(item.date),
       item.close,
     ]);
 
-    const cap: [number, number][] = evList.map((item) => {
-      const ts = toTs(item.date);
-      return [ts, item.marketCapitalization / 1e9];
-    });
-
     return {
       closePriceData: close,
-      marketCapData: cap,
     };
-  }, [sortedStockPriceAndVolume, sortedEnterpriseValues]);
+  }, [sortedStockPriceAndVolume]);
 
   const options: Options = useMemo(
     () => ({
@@ -81,13 +61,13 @@ const StockPriceEnterpriseChart = ({
         {
           type: 'datetime',
           crosshair: true,
-          lineWidth: 1,
+          lineWidth: 0,
           lineColor: 'hsl(220, 15%, 18%)',
           tickLength: 0,
           tickAmount: 8,
-          top: '98%',
+          top: '100%',
           height: 0,
-          offset: 12,
+          offset: 0,
           dateTimeLabelFormats: {
             day: '%y.%m.%d',
             week: '%y.%m.%d',
@@ -115,7 +95,7 @@ const StockPriceEnterpriseChart = ({
         {
           title: { text: '' },
           gridLineColor: 'hsl(220, 15%, 18%)',
-          height: '48%',
+          height: '100%',
           resize: { enabled: true },
           tickAmount: 6,
           minPadding: 0.05,
@@ -127,26 +107,6 @@ const StockPriceEnterpriseChart = ({
             style: { color: 'hsl(215, 20%, 70%)', fontSize: '11px' },
             formatter: function () {
               return `$${Number(this.value).toFixed(2)}`;
-            },
-          },
-        },
-        {
-          title: { text: '' },
-          gridLineColor: 'hsl(220, 15%, 18%)',
-          top: '52%',
-          height: '44%',
-          offset: 0,
-          tickAmount: 5,
-          minPadding: 0.05,
-          maxPadding: 0.05,
-          opposite: true,
-          labels: {
-            align: 'left',
-            x: 10,
-            style: { color: 'hsl(215, 20%, 70%)', fontSize: '11px' },
-            formatter: function () {
-              const v = this.value as number;
-              return `$${v.toFixed(0)}B`;
             },
           },
         },
@@ -168,21 +128,21 @@ const StockPriceEnterpriseChart = ({
           const rows = points.map((p) => {
             const name = p.series.name;
             const y = Number(p.y);
-            if (name === '주가') {
-              return `<span style="color:${p.color}">●</span> ${name}: <b>$${y.toFixed(2)}</b>`;
-            }
-            if (name === '시가총액') {
-              const raw = y * 1e9;
-              return `<span style="color:${p.color}">●</span> ${name}: <b>${formatB(raw)}</b>`;
-            }
-            return `<span style="color:${p.color}">●</span> ${name}: <b>${y}</b>`;
+            return `<span style="color:${p.color}">●</span> ${name}: <b>$${y.toFixed(2)}</b>`;
           });
           return `<div style="margin-bottom:6px; font-weight:600;">${dateLabel}</div><div style="line-height:1.6;">${rows.join('<br/>')}</div>`;
         },
       },
       plotOptions: {
+        series: {
+          states: {
+            inactive: {
+              opacity: 1,
+            },
+          },
+        },
         line: {
-          lineWidth: 2,
+          lineWidth: 1.5,
           marker: { radius: 3 },
         },
       },
@@ -198,32 +158,20 @@ const StockPriceEnterpriseChart = ({
           zIndex: 2,
           visible: visibleKeys.has('stock-price'),
         },
-        {
-          type: 'line',
-          id: 'market-cap',
-          name: '시가총액',
-          data: marketCapData,
-          xAxis: 0,
-          yAxis: 1,
-          color: SERIES_OPTIONS[1].color,
-          zIndex: 1,
-          visible: visibleKeys.has('market-cap'),
-        },
       ],
       scrollbar: { enabled: false },
       responsive: { rules: [] },
     }),
-    [closePriceData, marketCapData, visibleKeys],
+    [closePriceData, visibleKeys],
   );
 
   const hasDaily = (sortedStockPriceAndVolume?.length ?? 0) > 0;
-  const hasEnterprise = (sortedEnterpriseValues?.length ?? 0) > 0;
-  if (!hasDaily && !hasEnterprise) {
+  if (!hasDaily) {
     return (
       <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
         <div className="border-b border-border bg-muted/60 px-5 py-3">
           <h3 className="text-base font-semibold text-foreground">
-            주가 · 시가총액
+            주가 · 기업가치
           </h3>
         </div>
         <div className="p-10 text-center text-muted-foreground text-sm">
@@ -237,7 +185,7 @@ const StockPriceEnterpriseChart = ({
     <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
       <div className="border-b border-border bg-muted/60 px-5 py-3 flex flex-wrap items-center justify-between gap-3">
         <h3 className="text-base font-semibold text-foreground">
-          주가 · 시가총액
+          주가 · 기업가치
         </h3>
         <div className="flex flex-wrap gap-1.5">
           {SERIES_OPTIONS.map(({ key, name, color }) => {

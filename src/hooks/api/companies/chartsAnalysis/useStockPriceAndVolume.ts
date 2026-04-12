@@ -1,11 +1,11 @@
-import { getStockPriceAndVolumeFromApi } from '@/services/companies/chartsAnalysis/getStockPriceAndVolumeFromApi';
+import { getStockPriceAndVolume } from '@/services/companies/chartsAnalysis';
 import { StockPriceAndVolumeResponse } from '@/types/chartsAnalysis';
 import { useQuery } from '@tanstack/react-query';
 
 interface UseStockPriceAndVolumeProps {
   symbol: string;
-  from: string;
-  to: string;
+  from?: string;
+  to?: string;
 }
 
 const useStockPriceAndVolume = ({
@@ -16,7 +16,7 @@ const useStockPriceAndVolume = ({
   return useQuery({
     queryKey: ['stockPriceAndVolume', symbol, from, to],
     queryFn: (): Promise<StockPriceAndVolumeResponse> =>
-      getStockPriceAndVolumeFromApi({ symbol, from, to }),
+      getStockPriceAndVolume({ symbol, from, to }),
     staleTime: 6 * 60 * 1000,
     refetchOnMount: false,
   });

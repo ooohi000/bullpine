@@ -1,36 +1,42 @@
-import { getEnterpriseValues } from '@/services/companies/chartsAnalysis/getEnterpriseValues';
+import { getBackendJsonRequestHeaders } from '@/lib/server/getBackendRequestHeaders';
+import { BaseUrl } from '@/services';
 import { NextRequest, NextResponse } from 'next/server';
 
 export const GET = async (
   request: NextRequest,
-  { params }: { params: { symbol: string } },
+  { params }: { params: Promise<{ symbol: string }> | { symbol: string } },
 ) => {
   try {
     const resolvedParams = await Promise.resolve(params);
     const { symbol } = resolvedParams;
-    const searchParams = request.nextUrl.searchParams;
-    const limit = searchParams.get('limit');
-    const period = searchParams.get('period');
-
-    if (!symbol || !limit || !period) {
+    if (!symbol) {
       return NextResponse.json(
-        { error: 'symbol, limit, period are required' },
+        { error: 'symbol 파라미터가 필요합니다.' },
         { status: 400 },
       );
     }
 
-    const limitNumber = parseInt(limit, 10);
-
-    const data = await getEnterpriseValues({
-      symbol,
-      limit: limitNumber,
-      period,
+    const backendUrl = new URL(
+      `${BaseUrl}/api/analysis/enterprise-values?symbol=${symbol}`,
+    );
+    const res = await fetch(backendUrl.toString(), {
+      method: 'GET',
+      headers: getBackendJsonRequestHeaders(),
+      cache: 'no-store',
     });
-
-    return NextResponse.json({ data });
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: res.statusText },
+        { status: res.status },
+      );
+    }
+    const data = await res.json();
+    return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      {
+        error: error instanceof Error ? error.message : 'Internal Server Error',
+      },
       { status: 500 },
     );
   }

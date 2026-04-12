@@ -1,22 +1,15 @@
-import { getEnterpriseValuesFromApi } from '@/services/companies/chartsAnalysis/getEnterpriseValuesFromApi';
-import { EnterpriseValuesResponse } from '@/types/chartsAnalysis/enterpriseValues';
+import { getEnterpriseValues } from '@/services/companies/chartsAnalysis/getEnterpriseValues';
+import {
+  EnterpriseValuesProps,
+  EnterpriseValuesResponse,
+} from '@/types/chartsAnalysis/enterpriseValues';
 import { useQuery } from '@tanstack/react-query';
 
-interface UseEnterpriseValuesProps {
-  symbol: string;
-  limit: number;
-  period: string;
-}
-
-const useEnterpriseValues = ({
-  symbol,
-  limit,
-  period,
-}: UseEnterpriseValuesProps) => {
+const useEnterpriseValues = ({ symbol, from, to }: EnterpriseValuesProps) => {
   return useQuery({
-    queryKey: ['enterpriseValues', symbol, limit, period],
+    queryKey: ['enterpriseValues', symbol, from, to],
     queryFn: (): Promise<EnterpriseValuesResponse> =>
-      getEnterpriseValuesFromApi({ symbol, limit, period }),
+      getEnterpriseValues({ symbol, from, to }),
     staleTime: 6 * 60 * 1000,
     refetchOnMount: false,
   });

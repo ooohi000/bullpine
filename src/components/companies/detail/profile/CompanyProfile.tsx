@@ -1,26 +1,75 @@
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import { CompanyProfile as CompanyProfileType } from '@/types';
-import Image from 'next/image';
+import { ExternalStockImage } from '@/components/common/ExternalStockImage';
 import Link from 'next/link';
 import { formatNumber } from '@/lib';
 import { SharesFloat as SharesFloatType } from '@/types/profile/sharesFloat';
+import { CompanyEmployeeCount as CompanyEmployeeCountType } from '@/types/profile';
+import {
+  COUNTRY_FALLBACK,
+  INDUSTRY_FALLBACK,
+  SECTOR_FALLBACK,
+} from '@/constants';
+
+function CompanyProfileLogo({
+  src,
+  alt,
+  fallback,
+}: {
+  src: string;
+  alt: string;
+  fallback: React.ReactNode;
+}) {
+  const [broken, setBroken] = useState(false);
+
+  useEffect(() => {
+    setBroken(false);
+  }, [src]);
+
+  if (broken) return fallback;
+
+  return (
+    <div className="relative h-[100px] w-[100px] shrink-0 overflow-hidden rounded-lg bg-muted">
+      <ExternalStockImage
+        src={src}
+        alt={alt}
+        fill
+        sizes="100px"
+        className="object-cover"
+        onError={() => setBroken(true)}
+        onMissing={() => setBroken(true)}
+      />
+    </div>
+  );
+}
 
 const CompanyProfile = ({
   companyProfile,
+  employeeCount,
   exchangeRate,
   shareFloat,
 }: {
   companyProfile: CompanyProfileType;
+  employeeCount: CompanyEmployeeCountType[];
   exchangeRate: number | null;
   shareFloat: SharesFloatType;
 }) => {
+  const currentYear = new Date().getFullYear();
+  const employeeCountYear = Number(
+    employeeCount[0].periodOfReport.split('-')[0],
+  );
+  const isCurrentYear = currentYear === employeeCountYear;
   const infoRows = [
     { label: '대표자', value: companyProfile.ceo ?? '-' },
     {
       label: '정규직 수',
-      value: companyProfile.fullTimeEmployees
-        ? `${companyProfile.fullTimeEmployees} 명`
-        : '-',
+      value: isCurrentYear
+        ? `${employeeCount[0].employeeCount} 명`
+        : companyProfile.fullTimeEmployees
+          ? `${companyProfile.fullTimeEmployees} 명`
+          : '-',
     },
     {
       label: '발행주식수',
@@ -42,21 +91,26 @@ const CompanyProfile = ({
     },
   ];
 
+  const logoFallback = (
+    <div className="flex h-[100px] w-[100px] shrink-0 items-center justify-center rounded-lg bg-muted text-sm font-medium text-chart-up">
+      Bullpine
+    </div>
+  );
+
   return (
     <div className="flex flex-col gap-6">
       {/* 헤더: 로고 + 기업명·국가·업종 */}
       <div className="flex items-start justify-between gap-8">
-        <div className="flex h-[100px] w-[100px] shrink-0 items-center justify-center rounded-lg border border-border bg-card p-2 box-border">
-          <div className="relative h-full w-full">
-            <Image
+        <div className="box-border flex h-[100px] w-[100px] shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-card">
+          {companyProfile.image ? (
+            <CompanyProfileLogo
               src={companyProfile.image}
-              alt={`${companyProfile.companyName} logo`}
-              title={`${companyProfile.companyName} logo`}
-              fill
-              className="object-contain"
-              sizes="84px"
+              alt={companyProfile.companyName}
+              fallback={logoFallback}
             />
-          </div>
+          ) : (
+            logoFallback
+          )}
         </div>
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <h1 className="text-xl font-bold text-foreground">
@@ -66,11 +120,21 @@ const CompanyProfile = ({
             </span>
           </h1>
           <p className="text-sm text-muted-foreground">
-            {companyProfile.country} · {companyProfile.exchange}
+            {
+              COUNTRY_FALLBACK.find(
+                (country) => country.value === companyProfile.country,
+              )?.label
+            }{' '}
+            · {companyProfile.exchange}
           </p>
           <p className="text-sm text-muted-foreground">
-            {companyProfile.sector}
-            {companyProfile.industry && ` · ${companyProfile.industry}`}
+            {
+              SECTOR_FALLBACK.find(
+                (sector) => sector.value === companyProfile.sector,
+              )?.label
+            }
+            {companyProfile.industry &&
+              ` · ${INDUSTRY_FALLBACK.find((industry) => industry.value === companyProfile.industry)?.label}`}
           </p>
         </div>
       </div>

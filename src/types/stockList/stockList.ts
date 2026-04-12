@@ -1,10 +1,12 @@
 export interface Company {
   beta: number;
   companyName: string;
+  companyNameKo: string | null;
   country: string;
   exchange: string;
   exchangeShortName: string;
   id: number;
+  image: string | null;
   industry: string;
   isActivelyTrading: boolean;
   isEtf: boolean;
