@@ -97,19 +97,9 @@ const StockPriceChart = ({ mergedByDate }: StockPriceChartProps) => {
     });
   }, []);
 
-  const sortedStockPriceAndVolumeData = useMemo(
-    () =>
-      mergedByDate
-        .map((row) => row.price)
-        .filter((p): p is StockPriceAndVolumeItem => p != null),
-    [mergedByDate],
-  );
-
-  const sortedStockDailyIndicatorData = useMemo(
-    () =>
-      mergedByDate
-        .map((row) => row.indicator)
-        .filter((i): i is StockDailyIndicatorItem => i != null),
+  /** 차트·호버 인덱스 기준: `price`가 있는 행만 (같은 행의 `indicator`는 날짜로 대응) */
+  const chartRows = useMemo(
+    () => mergedByDate.filter((r) => r.price != null),
     [mergedByDate],
   );
 
@@ -125,12 +115,13 @@ const StockPriceChart = ({ mergedByDate }: StockPriceChartProps) => {
     const ma60: { x: number; y: number }[] = [];
     const ma120: { x: number; y: number }[] = [];
     const ma200: { x: number; y: number }[] = [];
-    for (let i = 0; i < mergedByDate.length; i++) {
-      const item = sortedStockPriceAndVolumeData[i];
+    for (let i = 0; i < chartRows.length; i++) {
+      const row = chartRows[i];
+      const item = row.price!;
+      const prevItem = chartRows[i - 1]?.price;
       const isVolumeUp =
-        item &&
-        item.volume > (sortedStockPriceAndVolumeData[i - 1]?.volume ?? 0);
-      const indicatorItem = sortedStockDailyIndicatorData[i];
+        item.volume > (prevItem?.volume ?? 0);
+      const indicatorItem = row.indicator;
 
       const x = Date.UTC(
         +item.date.split('-')[0],
@@ -138,8 +129,6 @@ const StockPriceChart = ({ mergedByDate }: StockPriceChartProps) => {
         +item.date.split('-')[2],
       );
       ohlc.push([x, item.open, item.high, item.low, item.close]);
-      // x는 인덱스로 둠. Highcharts category 축은 미리 정의된 categories일 때 x를 인덱스로만 배치함.
-      // 순서가 ohlc·categories와 같으므로 인덱스 i = item.date(같은 날짜) 대응.
       volume.push({
         x,
         y: Number(item.volume) || 0,
@@ -167,7 +156,7 @@ const StockPriceChart = ({ mergedByDate }: StockPriceChartProps) => {
       });
     }
     return { ohlc, volume, ma5, ma20, ma60, ma120, ma200 };
-  }, [mergedByDate, sortedStockPriceAndVolumeData, sortedStockDailyIndicatorData]);
+  }, [chartRows]);
 
   const options: Options = useMemo(() => {
     const maBundle = [ma5, ma20, ma60, ma120, ma200] as const;
@@ -344,18 +333,17 @@ const StockPriceChart = ({ mergedByDate }: StockPriceChartProps) => {
     };
   }, [ohlc, volume, ma5, ma20, ma60, ma120, ma200, visibleMaIds]);
 
-  if (mergedByDate.length === 0) return null;
+  if (chartRows.length === 0) return null;
 
-  const lastIndex = mergedByDate.length - 1;
+  const lastIndex = chartRows.length - 1;
   const displayIndex =
     hoverIndex != null && hoverIndex >= 0 && hoverIndex <= lastIndex
       ? hoverIndex
       : lastIndex;
-  const row = sortedStockPriceAndVolumeData[displayIndex];
+  const displayRow = chartRows[displayIndex];
+  const row = displayRow.price!;
   const prevVol =
-    displayIndex > 0
-      ? mergedByDate[displayIndex - 1]?.price?.volume
-      : undefined;
+    displayIndex > 0 ? chartRows[displayIndex - 1]?.price?.volume : undefined;
   const volumeUp =
     prevVol != null ? row.volume > prevVol : row.close >= row.open;
   const volColor = volumeUp ? COLOR_UP : COLOR_DOWN;
@@ -368,7 +356,7 @@ const StockPriceChart = ({ mergedByDate }: StockPriceChartProps) => {
       ? row.vwap * row.volume
       : NaN;
 
-  const indicatorRow = sortedStockDailyIndicatorData[displayIndex];
+  const indicatorRow = displayRow.indicator;
 
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">

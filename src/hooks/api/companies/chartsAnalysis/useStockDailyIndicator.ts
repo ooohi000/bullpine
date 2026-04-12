@@ -1,4 +1,4 @@
-import { getStockDailyIndicator } from '@/services/companies/chartsAnalysis/getStockDailyIndicatoer';
+import { getStockDailyIndicator } from '@/services/companies/chartsAnalysis/getStockDailyIndicator';
 import {
   StockDailyIndicatorProps,
   StockDailyIndicatorResponse,
