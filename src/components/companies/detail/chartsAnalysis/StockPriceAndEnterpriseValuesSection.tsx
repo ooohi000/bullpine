@@ -16,7 +16,6 @@ interface StockPriceAndEnterpriseValuesSectionProps {
 const StockPriceAndEnterpriseValuesSection = ({
   symbol,
 }: StockPriceAndEnterpriseValuesSectionProps) => {
-  const today = new Date().toISOString().split('T')[0];
   const { data: stockPriceAndVolume, isLoading: isStockPriceAndVolumeLoading } =
     useStockPriceAndVolume({
       symbol,
@@ -45,15 +44,21 @@ const StockPriceAndEnterpriseValuesSection = ({
   });
 
   const sortedStockPriceAndVolume = useMemo(() => {
-    return stockPriceAndVolume?.data.sort(
+    const list = stockPriceAndVolume?.data;
+    if (!list?.length) return undefined;
+    return [...list].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
     );
   }, [stockPriceAndVolume]);
 
   const sortedEnterpriseValues = useMemo(() => {
-    return enterpriseValues?.data
-      ?.filter((item) => item.date.split('-')[0] >= '2020')
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const filtered = enterpriseValues?.data?.filter(
+      (item) => item.date.split('-')[0] >= '2020',
+    );
+    if (!filtered?.length) return undefined;
+    return [...filtered].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    );
   }, [enterpriseValues]);
 
   return (
