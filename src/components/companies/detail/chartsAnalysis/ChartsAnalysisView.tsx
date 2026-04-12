@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
-import useEnterpriseValues from '@/hooks/api/companies/chartsAnalysis/useEnterpriseValues';
+import React, { useState } from 'react';
 import ChartsAnalysisTabs, { ChartsAnalysisTabId } from './ChartsAnalysisTabs';
 import StockPriceAndVolumeSection from './StockPriceAndVolumeSection';
 import StockPriceAndEnterpriseValuesSection from './StockPriceAndEnterpriseValuesSection';
@@ -17,13 +16,13 @@ const ChartsAnalysisView = ({ symbol }: ChartsAnalysisViewProps) => {
 
   return (
     <div className="flex flex-col gap-8">
-      <ChartsAnalysisTabs activeTab={activeTab} onTabChange={setActiveTab} />
+      {/* <ChartsAnalysisTabs activeTab={activeTab} onTabChange={setActiveTab} /> */}
       {activeTab === 'stockPriceAndVolume' && (
         <StockPriceAndVolumeSection symbol={symbol} />
       )}
-      {activeTab === 'enterpriseValues' && (
+      {/* {activeTab === 'enterpriseValues' && (
         <StockPriceAndEnterpriseValuesSection symbol={symbol} />
-      )}
+      )} */}
     </div>
   );
 };

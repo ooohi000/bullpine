@@ -2,13 +2,22 @@ import { getBackendJsonRequestHeaders } from '@/lib/server/getBackendRequestHead
 import { BaseUrl } from '@/services';
 import { NextRequest, NextResponse } from 'next/server';
 
-/**
- * 클라이언트는 BASE_URL을 볼 수 없으므로, 서버에서만 업스트림으로 프록시.
- * 여기서 @/services의 getStockList를 부르면 안 됨 — 그 함수는 다시 /api/stockList를 호출해 순환됨.
- */
-export const GET = async (request: NextRequest) => {
+export const GET = async (
+  request: NextRequest,
+  { params }: { params: Promise<{ symbol: string }> | { symbol: string } },
+) => {
   try {
-    const backendUrl = new URL(`${BaseUrl}/api/stockList`);
+    const resolvedParams = await Promise.resolve(params);
+    const { symbol } = resolvedParams;
+    if (!symbol) {
+      return NextResponse.json(
+        { error: 'symbol 파라미터가 필요합니다.' },
+        { status: 400 },
+      );
+    }
+    const backendUrl = new URL(
+      `${BaseUrl}/api/analysis/stock-daily-indicator?symbol=${symbol}`,
+    );
     request.nextUrl.searchParams.forEach((value, key) => {
       backendUrl.searchParams.set(key, value);
     });

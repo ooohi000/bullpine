@@ -2,7 +2,7 @@
 
 import { NewsItem as NewsItemType } from '@/types/news';
 import { NewspaperIcon } from 'lucide-react';
-import Image from 'next/image';
+import { ExternalStockImage } from '@/components/common/ExternalStockImage';
 import React, { useState } from 'react';
 
 interface NewsItemProps {
@@ -27,13 +27,14 @@ const Thumbnail = ({ image }: { image?: string }) => {
       {showPlaceholder ? (
         <PlaceholderIcon />
       ) : (
-        <Image
+        <ExternalStockImage
           src={image!}
           alt=""
           fill
-          className="object-cover group-hover:scale-[1.05] transition-transform duration-200"
+          className="object-cover transition-transform duration-200 group-hover:scale-[1.05]"
           sizes="(max-width: 640px) 100vw, 144px"
           onError={() => setLoadFailed(true)}
+          onMissing={() => setLoadFailed(true)}
         />
       )}
     </div>

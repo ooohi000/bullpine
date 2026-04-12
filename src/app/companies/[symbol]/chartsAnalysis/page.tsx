@@ -1,6 +1,5 @@
 import React from 'react';
 import ChartsAnalysisView from '@/components/companies/detail/chartsAnalysis/ChartsAnalysisView';
-import { getStockPriceAndVolume } from '@/services/companies/chartsAnalysis';
 
 const ChartsAnalysisPage = async ({
   params,
@@ -14,7 +13,7 @@ const ChartsAnalysisPage = async ({
     <div className="flex flex-col gap-10 pt-4">
       <header>
         <h1 className="text-2xl font-bold tracking-tight text-foreground">
-          {symbol.toUpperCase()} 차트분석
+          {symbol.toUpperCase()} 차트 분석
         </h1>
       </header>
       <ChartsAnalysisView symbol={symbol} />

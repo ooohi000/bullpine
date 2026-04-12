@@ -1,22 +1,24 @@
-import { BaseUrl } from '@/services/baseUrl';
+import { StockPriceAndVolumeProps, StockPriceAndVolumeResponse } from '@/types';
 
 export const getStockPriceAndVolume = async ({
   symbol,
   from,
   to,
-}: {
-  symbol: string;
-  from: string;
-  to: string;
-}): Promise<any> => {
-  const url = `${BaseUrl}/api/charts/stock-price-volume?symbol=${symbol}&from=${from}&to=${to}`;
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
+}: StockPriceAndVolumeProps): Promise<StockPriceAndVolumeResponse> => {
+  const params = new URLSearchParams();
+  params.set('symbol', symbol);
+  from ? params.set('from', from) : '';
+  to ? params.set('to', to) : '';
+  const response = await fetch(
+    `/api/companies/${symbol}/chartsAnalysis/stockPriceAndVolume?${params.toString()}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      cache: 'no-store',
     },
-    cache: 'no-store',
-  });
+  );
   if (!response.ok) {
     throw new Error(`API 오류: ${response.statusText}`);
   }

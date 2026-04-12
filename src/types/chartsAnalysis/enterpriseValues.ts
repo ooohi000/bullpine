@@ -1,4 +1,11 @@
+export interface EnterpriseValuesProps {
+  symbol: string;
+  from?: string;
+  to?: string;
+}
+
 export interface EnterpriseValuesItem {
+  id: number;
   symbol: string;
   date: string;
   stockPrice: number;
@@ -10,5 +17,8 @@ export interface EnterpriseValuesItem {
 }
 
 export interface EnterpriseValuesResponse {
+  success: boolean;
   data: EnterpriseValuesItem[];
+  message?: string;
+  errorCode?: string;
 }

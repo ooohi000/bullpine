@@ -1,5 +1,6 @@
-import { getStockPriceAndVolume } from '@/services/companies/chartsAnalysis';
 import { NextRequest, NextResponse } from 'next/server';
+import { BaseUrl } from '@/services';
+import { getBackendJsonRequestHeaders } from '@/lib/server/getBackendRequestHeaders';
 
 export const GET = async (
   request: NextRequest,
@@ -8,26 +9,38 @@ export const GET = async (
   try {
     const resolvedParams = await Promise.resolve(params);
     const { symbol } = resolvedParams;
-    const searchParams = request.nextUrl.searchParams;
-    const from = searchParams.get('from');
-    const to = searchParams.get('to');
-
-    if (!symbol || !from || !to) {
+    if (!symbol) {
       return NextResponse.json(
-        { error: 'symbol, from, to are required' },
+        { error: 'symbol 파라미터가 필요합니다.' },
         { status: 400 },
       );
     }
 
-    const data = await getStockPriceAndVolume({
-      symbol,
-      from,
-      to,
+    const backendUrl = new URL(
+      `${BaseUrl}/api/charts/stock-price-volume?symbol=${symbol}`,
+    );
+    request.nextUrl.searchParams.forEach((value, key) => {
+      backendUrl.searchParams.set(key, value);
     });
-    return NextResponse.json({ data });
+
+    const res = await fetch(backendUrl.toString(), {
+      method: 'GET',
+      headers: getBackendJsonRequestHeaders(),
+      cache: 'no-store',
+    });
+    if (!res.ok) {
+      return NextResponse.json(
+        { error: res.statusText },
+        { status: res.status },
+      );
+    }
+    const data = await res.json();
+    return NextResponse.json(data);
   } catch (error) {
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      {
+        error: error instanceof Error ? error.message : 'Internal Server Error',
+      },
       { status: 500 },
     );
   }

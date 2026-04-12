@@ -42,7 +42,8 @@ const Login = () => {
     setServerError(null);
     try {
       const result = await loginAction(values);
-      if (!result.success && result.error) {
+      // 성공 시 서버에서 `redirect()`로 끝나 클라이언트에 `undefined`가 올 수 있음
+      if (result && !result.success && result.error) {
         setServerError(result.error);
       }
     } catch (err) {
@@ -90,7 +91,6 @@ const Login = () => {
               </p>
             ) : null}
           </div>
-
           <div className="flex flex-col gap-1.5">
             <label
               htmlFor="password"
@@ -114,7 +114,6 @@ const Login = () => {
               </p>
             ) : null}
           </div>
-
           {serverError ? (
             <p
               className="-mt-1 text-left text-xs text-destructive"
@@ -123,7 +122,6 @@ const Login = () => {
               {serverError}
             </p>
           ) : null}
-
           <button
             type="submit"
             disabled={isSubmitting}
