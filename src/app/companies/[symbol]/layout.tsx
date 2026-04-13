@@ -36,7 +36,11 @@ export default async function CompanyDetailLayout({
   const items: VerticalMenuItem[] = [
     { label: 'line', href: '' },
     { label: 'section', href: '', sectionTitle: '차트·거래량' },
-    { label: '차트 분석', href: `/companies/${symbol}/chartsAnalysis` },
+    {
+      label: '차트 분석',
+      href: `/companies/${symbol}/chartsAnalysis`,
+      requiresAuth: true,
+    },
     { label: 'line', href: '' },
     { label: 'section', href: '', sectionTitle: '재무제표' },
     { label: '대차대조표', href: `/companies/${symbol}/balanceSheet` },
