@@ -3,10 +3,9 @@ import { redirect } from 'next/navigation';
 const CompanyFinancialAnalysisPage = async ({
   params,
 }: {
-  params: Promise<{ symbol: string }> | { symbol: string };
+  params: { symbol: string };
 }) => {
-  const resolvedParams = await Promise.resolve(params);
-  const { symbol } = resolvedParams;
+  const { symbol } = params;
   redirect(`/companies/${symbol}/financialRatios`);
 };
 

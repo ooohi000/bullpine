@@ -4,10 +4,9 @@ import GrowthAnalysisView from '@/components/companies/detail/bullpineAnalysis/g
 const GrowthAnalysisPage = async ({
   params,
 }: {
-  params: Promise<{ symbol: string }> | { symbol: string };
+  params: { symbol: string };
 }) => {
-  const resolvedParams = await Promise.resolve(params);
-  const { symbol } = resolvedParams;
+  const { symbol } = params;
 
   return (
     <div className="flex flex-col gap-10 pt-4">

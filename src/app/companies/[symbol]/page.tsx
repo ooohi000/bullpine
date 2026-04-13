@@ -13,32 +13,40 @@ import getShareFloat from '@/services/companies/profile/getShareFloat';
 import { getExecutives } from '@/services/companies/executives/getExecutives';
 
 interface CompanyDetailPageProps {
-  params: Promise<{ symbol: string }> | { symbol: string };
+  params: { symbol: string };
 }
 
 const CompanyDetailPage = async ({ params }: CompanyDetailPageProps) => {
-  // Next.js 15+에서는 params가 Promise일 수 있으므로 await 처리
-  const resolvedParams = await Promise.resolve(params);
-  const { symbol } = resolvedParams;
+  const { symbol } = params;
 
-  const companyProfile = await loadCompanyProfile({ symbol });
-  const employeeCount = await getCompanyEmployeeCount({
-    symbol,
-    limit: 5,
-  });
-  const stockPeerComparison = await getStockPeerComparison({
-    symbol,
-  });
-  const exchangeRate = await getExchangeRateService();
-  const revenueProductSegmentation = await getRevenueProductSegmentation({
-    symbol,
-    period: 'annual',
-  });
-  const shareFloat = await getShareFloat({ symbol });
-  const executives = await getExecutives({
-    symbol,
-    active: true,
-  });
+  const [
+    companyProfile,
+    employeeCount,
+    stockPeerComparison,
+    exchangeRate,
+    revenueProductSegmentation,
+    shareFloat,
+    executives,
+  ] = await Promise.all([
+    loadCompanyProfile({ symbol }),
+    getCompanyEmployeeCount({
+      symbol,
+      limit: 5,
+    }),
+    getStockPeerComparison({
+      symbol,
+    }),
+    getExchangeRateService(),
+    getRevenueProductSegmentation({
+      symbol,
+      period: 'annual',
+    }),
+    getShareFloat({ symbol }),
+    getExecutives({
+      symbol,
+      active: true,
+    }),
+  ]);
 
   return (
     <div className="flex flex-col gap-8">

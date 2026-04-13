@@ -5,10 +5,9 @@ import React from 'react';
 const EarningsPage = async ({
   params,
 }: {
-  params: Promise<{ symbol: string }> | { symbol: string };
+  params: { symbol: string };
 }) => {
-  const resolvedParams = await Promise.resolve(params);
-  const { symbol } = resolvedParams;
+  const { symbol } = params;
   const exchangeRate = await getExchangeRateService();
 
   return (

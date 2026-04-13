@@ -9,7 +9,7 @@ import { notFound } from 'next/navigation';
 
 interface CompanyDetailLayoutProps {
   children: React.ReactNode;
-  params: Promise<{ symbol: string }> | { symbol: string };
+  params: { symbol: string };
 }
 
 export default async function CompanyDetailLayout({
@@ -20,8 +20,7 @@ export default async function CompanyDetailLayout({
     return <MaintenanceNotice />;
   }
 
-  const resolvedParams = await Promise.resolve(params);
-  const { symbol } = resolvedParams;
+  const { symbol } = params;
   const authed = isAuthenticated();
 
   const profile = await loadCompanyProfile({ symbol });
