@@ -3,12 +3,11 @@ import CashFlowView from '@/components/companies/detail/statements/cashFlow/Cash
 import { getExchangeRateService } from '@/services/exchangeRate/getExchangeRateService';
 
 interface CompanyCashFlowPageProps {
-  params: Promise<{ symbol: string }> | { symbol: string };
+  params: { symbol: string };
 }
 
 const CompanyCashFlowPage = async ({ params }: CompanyCashFlowPageProps) => {
-  const resolvedParams = await Promise.resolve(params);
-  const { symbol } = resolvedParams;
+  const { symbol } = params;
   const exchangeRate = await getExchangeRateService();
 
   return (

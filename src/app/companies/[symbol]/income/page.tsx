@@ -3,12 +3,11 @@ import IncomeView from '@/components/companies/detail/statements/income/IncomeVi
 import { getExchangeRateService } from '@/services/exchangeRate/getExchangeRateService';
 
 interface CompanyIncomePageProps {
-  params: Promise<{ symbol: string }> | { symbol: string };
+  params: { symbol: string };
 }
 
 const CompanyIncomePage = async ({ params }: CompanyIncomePageProps) => {
-  const resolvedParams = await Promise.resolve(params);
-  const { symbol } = resolvedParams;
+  const { symbol } = params;
   const exchangeRate = await getExchangeRateService();
 
   return (

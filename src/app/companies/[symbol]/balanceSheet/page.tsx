@@ -3,14 +3,13 @@ import BalanceSheetView from '@/components/companies/detail/statements/balanceSh
 import { getExchangeRateService } from '@/services/exchangeRate/getExchangeRateService';
 
 interface CompanyBalanceSheetPageProps {
-  params: Promise<{ symbol: string }> | { symbol: string };
+  params: { symbol: string };
 }
 
 const CompanyBalanceSheetPage = async ({
   params,
 }: CompanyBalanceSheetPageProps) => {
-  const resolvedParams = await Promise.resolve(params);
-  const { symbol } = resolvedParams;
+  const { symbol } = params;
   const exchangeRate = await getExchangeRateService();
 
   return (

@@ -3,10 +3,9 @@ import NewsView from '@/components/companies/detail/news/NewsView';
 const NewsPage = async ({
   params,
 }: {
-  params: Promise<{ symbol: string }>;
+  params: { symbol: string };
 }) => {
-  const resolvedParams = await Promise.resolve(params);
-  const { symbol } = resolvedParams;
+  const { symbol } = params;
 
   return <NewsView symbol={symbol} />;
 };

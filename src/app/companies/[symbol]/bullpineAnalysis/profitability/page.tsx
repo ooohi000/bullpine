@@ -4,10 +4,9 @@ import ProfitabilityAnalysisView from '@/components/companies/detail/bullpineAna
 const ProfitabilityAnalysisPage = async ({
   params,
 }: {
-  params: Promise<{ symbol: string }> | { symbol: string };
+  params: { symbol: string };
 }) => {
-  const resolvedParams = await Promise.resolve(params);
-  const { symbol } = resolvedParams;
+  const { symbol } = params;
 
   return (
     <div className="flex flex-col gap-10 pt-4">
