@@ -29,9 +29,7 @@ export function ExternalStockImage({
   };
 
   if (typeof src !== 'string') {
-    return (
-      <Image alt={alt} src={src} {...props} onLoad={handleLoad} unoptimized />
-    );
+    return <Image alt={alt} src={src} {...props} onLoad={handleLoad} />;
   }
   const proxied = proxiedStockImageSrc(src);
   const viaProxy = isFmpStockImageUrl(src);
